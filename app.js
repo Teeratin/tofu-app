@@ -47,7 +47,9 @@ const I={
  bell:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z" fill="#F4E9CB"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>`,
  hospital:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M4.5 20.5V8.5L12 4l7.5 4.5v12z" fill="#fff"/><path d="M12 9.5v6M9 12.5h6"/></svg>`,
  star:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="m12 3.8 2.4 5 5.4.6-4 3.7 1.1 5.4L12 15.8l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z" fill="#E9D3A8"/></svg>`,
+ warn:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M12 4.2 20.5 19H3.5L12 4.2z"/><path d="M12 10v5" stroke-width="2.4"/><circle cx="12" cy="17.2" r="1" fill="#414648"/></svg>`,
 };
+Object.keys(I).forEach(k=>{I[k]=I[k].replace('<svg ','<svg aria-hidden="true" ')});
 const SP={
  dog:{label:'หมา',bg:'#F4E9CB',svg:`<svg viewBox="0 0 48 48" fill="none" ${S}><path d="M11 15c-4 1-6 8-4 13 1.5 2.5 4 1 5-1" fill="#BA905D"/><path d="M37 15c4 1 6 8 4 13-1.5 2.5-4 1-5-1" fill="#BA905D"/><path d="M12 22c0-7 5-11 12-11s12 4 12 11v5c0 7-5 11-12 11s-12-4-12-11z" fill="#E9CFA2"/><circle cx="19" cy="23" r="1.6" fill="#414648"/><circle cx="29" cy="23" r="1.6" fill="#414648"/><path d="M21.5 29.5h5l-2.5 2.5z" fill="#414648"/><path d="M24 32v2.2c-1 1.4-3 1.4-4 0M24 34.2c1 1.4 3 1.4 4 0"/></svg>`},
  cat:{label:'แมว',bg:'#E9ECEA',svg:`<svg viewBox="0 0 48 48" fill="none" ${S}><path d="M11 21 10 8l9 6M37 21l1-13-9 6" fill="#EFEBE4"/><path d="M10 26c0-8 6-13 14-13s14 5 14 13-6 12-14 12-14-4-14-12z" fill="#EFEBE4"/><path d="M17 24.5q2-2 4 0M27 24.5q2-2 4 0"/><path d="M22.5 28.5h3L24 30z" fill="#E8B9AA"/><path d="M24 30q-1.5 2.5-4 1.5M24 30q1.5 2.5 4 1.5M7 27l7 1M7 31l7-1M41 27l-7 1M41 31l-7-1"/></svg>`},
@@ -55,6 +57,7 @@ const SP={
  bird:{label:'นก',bg:'#E7EDE0',svg:`<svg viewBox="0 0 48 48" fill="none" ${S}><path d="M24 9c-8 0-13 6-13 14 0 9 6 16 13 16s13-7 13-16c0-8-5-14-13-14z" fill="#C9D8BE"/><path d="M24 9c1-3 4-4 6-3M24 9c-1-3 0-5 2-6"/><path d="M14 27c-4 2-5 6-4 8 3 0 6-2 7-5M34 27c4 2 5 6 4 8-3 0-6-2-7-5" fill="#A9BF9E"/><circle cx="19" cy="21" r="1.6" fill="#414648"/><circle cx="29" cy="21" r="1.6" fill="#414648"/><path d="M21 25h6l-3 4z" fill="#E9D3A8"/></svg>`},
  other:{label:'อื่นๆ',bg:'#F4E9CB',svg:`<svg viewBox="0 0 48 48" fill="none" ${S}><path d="M16 33c0-5 3.6-9 8-9s8 4 8 9c0 3-2.5 4.6-5 4.1-1.2-.2-1.8-.6-3-.6s-1.8.4-3 .6c-2.5.5-5-1.1-5-4.1z" fill="#E9CFA2"/><circle cx="12" cy="22.5" r="3.4" fill="#E9CFA2"/><circle cx="19" cy="14.6" r="3.6" fill="#E9CFA2"/><circle cx="29" cy="14.6" r="3.6" fill="#E9CFA2"/><circle cx="36" cy="22.5" r="3.4" fill="#E9CFA2"/></svg>`},
 };
+Object.values(SP).forEach(s=>{s.svg=s.svg.replace('<svg ','<svg aria-hidden="true" ')});
 const SEX={m:'ตัวผู้',f:'ตัวเมีย',u:'ไม่ระบุ'};
 const ATYPE={vaccine:{label:'ฉีดวัคซีน',chip:'yellow',ic:'syringe'},checkup:{label:'ตรวจสุขภาพ',chip:'sky',ic:'steth'},other:{label:'อื่นๆ',chip:'mint',ic:'note'}};
 const MASCOTS={
@@ -108,6 +111,8 @@ const M=()=>MASCOTS[st.mascot];
 const pet=id=>st.pets.find(p=>p.id===id);
 const vstatus=v=>{if(v.next){const n=diff(v.next);if(n<0)return 'over';if(n<=30)return 'soon'}return v.given?'done':'soon'};
 const VS={done:'ฉีดแล้ว',soon:'ใกล้ถึงกำหนด',over:'เลยกำหนด'};
+const VIC={done:'check',soon:'clock',over:'warn'};
+const statusChip=s=>`<span class="status ${s}">${I[VIC[s]]}${VS[s]}</span>`;
 function nextFor(pid){
   const c=[];st.vaccines.filter(v=>v.petId===pid&&v.next).forEach(v=>c.push({date:v.next,label:v.name}));
   st.appts.filter(a=>a.petId===pid&&a.type==='vaccine'&&diff(a.date)>=0).forEach(a=>c.push({date:a.date,label:a.title}));
@@ -120,17 +125,18 @@ const upcomingAppts=pid=>st.appts.filter(a=>(pid?a.petId===pid:!!pet(a.petId))&&
 const avatar=(p,cls='')=>{const s=SP[p.species]||SP.other;return `<div class="avatar ${cls}" style="background:${s.bg}">${s.svg}</div>`};
 const mimg=(cls='em')=>`<div class="${cls}"><img src="${M().img}" alt="${esc(M().name)}"></div>`;
 const emptyBox=(title,text,btn,mini)=>`<div class="empty ${mini?'mini':''}">${mimg('em')}<h3>${title}</h3><p>${text}</p>${btn||''}</div>`;
-let toastT;function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200)}
+let toastT;function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);
+  document.querySelectorAll('.hero-mascot img,.bar-mascot img,.sheet-head .em img,.splash-mascot img,.tip .em img,.mascot-card .em img,.empty .em img,.confirm-art img').forEach(img=>{img.classList.remove('mascot-react');void img.offsetWidth;img.classList.add('mascot-react')})}
 const go=h=>{location.hash=h};
-const nav=tab=>`<nav class="nav">
-  <button data-go="#/pets" class="${tab==='pets'?'on':''}">${I.paw}สัตว์เลี้ยง</button>
-  <button data-go="#/health" class="${tab==='health'?'on':''}">${I.book}สุขภาพ</button>
-  <button data-go="#/appts" class="${tab==='appts'?'on':''}">${I.cal}นัดหมาย</button></nav>`;
+const nav=tab=>`<nav class="nav" aria-label="เมนูหลัก">
+  <button type="button" data-go="#/pets" class="${tab==='pets'?'on':''}" aria-current="${tab==='pets'?'page':'false'}">${I.paw}สัตว์เลี้ยง</button>
+  <button type="button" data-go="#/health" class="${tab==='health'?'on':''}" aria-current="${tab==='health'?'page':'false'}">${I.book}สุขภาพ</button>
+  <button type="button" data-go="#/appts" class="${tab==='appts'?'on':''}" aria-current="${tab==='appts'?'page':'false'}">${I.cal}นัดหมาย</button></nav>`;
 const bar=(title,back,right='')=>`<header class="bar">${back?`<button class="icon-btn" data-back="${back}" aria-label="ย้อนกลับ">${I.back}</button>`:mimg('bar-mascot')}<h1>${title}</h1>${right}</header>`;
 
 
-const dIn=(n,v,max)=>`<div class="dpick input"><span class="dshow ${v?'':'ph'}">${v?fmt(v):'เลือกวันที่'}</span><input class="dnative" type="date" name="${n}" value="${esc(v)}"${max?` max="${max}"`:''}>${I.cal}</div>`;
-const tIn=(n,v)=>`<div class="dpick input"><span class="dshow ${v?'':'ph'}">${v?esc(v)+' น.':'เลือกเวลา'}</span><input class="dnative" type="time" name="${n}" value="${esc(v)}">${I.clock}</div>`;
+const dIn=(n,v,max,id)=>`<div class="dpick input"><span class="dshow ${v?'':'ph'}">${v?fmt(v):'เลือกวันที่'}</span><input class="dnative" id="${id||n}" type="date" name="${n}" value="${esc(v)}"${max?` max="${max}"`:''} aria-label="${v?fmt(v):'เลือกวันที่'}">${I.cal}</div>`;
+const tIn=(n,v,id)=>`<div class="dpick input"><span class="dshow ${v?'':'ph'}">${v?esc(v)+' น.':'เลือกเวลา'}</span><input class="dnative" id="${id||n}" type="time" name="${n}" value="${esc(v)}" aria-label="${v?esc(v)+' น.':'เลือกเวลา'}">${I.clock}</div>`;
 document.addEventListener('change',e=>{const i=e.target;if(!i.classList||!i.classList.contains('dnative'))return;const sp=i.parentElement.querySelector('.dshow');
   sp.classList.toggle('ph',!i.value);sp.textContent=i.value?(i.type==='date'?fmt(i.value):i.value+' น.'):(i.type==='date'?'เลือกวันที่':'เลือกเวลา');i.parentElement.classList.remove('err')});
 document.addEventListener('click',e=>{const i=e.target;if(i.classList&&i.classList.contains('dnative')&&i.showPicker){try{i.showPicker()}catch(_){}}},true);
@@ -158,18 +164,18 @@ function petsScreen(){
   if(!st.pets.length) list=emptyBox('ว่างเปล่า... เหมือนกล่องเต้าหู้','ยังไม่มีน้องสักตัว เพิ่มมาหน่อยสิ เหมียวเหงา',`<button class="btn" data-go="#/pet/new">${I.plus} เพิ่มสัตว์เลี้ยงตัวแรก</button>`);
   else list=`<div class="stack">${st.pets.map(p=>{const n=nextFor(p.id);const s=SP[p.species]||SP.other;
     const st2=n?(diff(n.date)<0?'peach':diff(n.date)<=30?'yellow':'mint'):'';
-    return `<div class="card tap pet-card" data-go="#/pet/${p.id}">${avatar(p)}
+    return `<button type="button" class="card tap pet-card" data-go="#/pet/${p.id}">${avatar(p)}
       <div class="pet-info"><h3 class="pet-name">${esc(p.name)}</h3>
       <div class="pet-meta">${s.label}${p.breed?' · '+esc(p.breed):''} · ${p.birth?age(p.birth):'ไม่ทราบอายุ'}</div>
       <div class="chips">${n?`<span class="chip ${st2}">${I.syringe} ${diff(n.date)<0?'เลยกำหนด ':''}${fmt(n.date)}</span>`:'<span class="chip">ยังไม่มีนัดวัคซีน</span>'}</div></div>
-      <span class="chev">${I.chev}</span></div>`}).join('')}</div>`;
+      <span class="chev">${I.chev}</span></button>`}).join('')}</div>`;
   return `<div class="screen">
     <div class="hero-head"><div class="top-actions"><button class="icon-btn" data-act="settings" aria-label="ตั้งค่า">${I.gear}</button></div>
       <div class="hero-row">${mimg('hero-mascot')}<div><span class="bubble">ว่าไง ทาสน้อง</span><h1 class="hero-title">${q}</h1></div></div>
     </div>
     <div class="section"><div class="todo">
-      <div class="t peach" data-go="#/health" style="cursor:pointer"><b>${ov}</b><span>เลยกำหนด อย่าทำเนียน</span></div>
-      <div class="t" style="background:var(--yellow)" data-go="#/appts"><b>${up}</b><span>นัดใน 7 วันนี้</span></div>
+      <button type="button" class="t peach" data-go="#/health"><b>${ov}</b><span>เลยกำหนด อย่าทำเนียน</span></button>
+      <button type="button" class="t" style="background:var(--yellow)" data-go="#/appts"><b>${up}</b><span>นัดใน 7 วันนี้</span></button>
       <div class="t mint"><b>${st.pets.length}</b><span>น้องในบ้าน</span></div></div></div>
     <div class="section"><div class="sec-head"><h2>สัตว์เลี้ยงของฉัน</h2><span class="meta">${st.pets.length} ตัว</span></div>${list}</div>
   </div>${st.pets.length?`<button class="fab" data-go="#/pet/new">${I.plus.replace('currentColor','#FFFDF8')} เพิ่มน้อง</button>`:''}${nav('pets')}`;
@@ -206,14 +212,14 @@ function petForm(id){
   return `<div class="screen no-nav">${bar(id?'แก้ไขข้อมูลน้อง':'เพิ่มสัตว์เลี้ยง',id?'#/pet/'+id:'#/pets')}
    <form class="form" id="petForm" data-id="${id||''}" novalidate>
     ${id?'':`<div class="tip mt8" style="margin-bottom:18px">${mimg('em')}<span>กรอกให้ครบนะ <b>เหมียวจะจำแทน</b> คุณจะได้ลืมได้เต็มที่</span></div>`}
-    <div class="field"><label>ชื่อน้อง</label><input class="input" name="name" value="${esc(p.name)}" placeholder="เช่น ข้าวปั้น" maxlength="30"></div>
-    <div class="field"><span class="flabel">ชนิดสัตว์</span><div class="choice" data-choice="species">${Object.entries(SP).map(([k,s])=>`<button type="button" data-val="${k}" class="${p.species===k?'on':''}">${s.svg}${s.label}</button>`).join('')}</div></div>
-    <div class="field"><label>สายพันธุ์ <span class="opt">(ไม่บังคับ)</span></label><input class="input" name="breed" value="${esc(p.breed)}" placeholder="เช่น ชิสุ, เปอร์เซีย, พันธุ์ทาง"></div>
-    <div class="two"><div class="field"><label>วันเกิด</label>${dIn("birth",p.birth,iso(today()))}</div>
-     <div class="field"><label>น้ำหนัก</label><div class="unit"><input class="input" name="weight" inputmode="decimal" value="${esc(p.weight)}" placeholder="0.0"><span>กก.</span></div></div></div>
-    <div class="field"><span class="flabel">เพศ</span><div class="choice" data-choice="sex">${Object.entries(SEX).map(([k,v])=>`<button type="button" class="noic ${p.sex===k?'on':''}" data-val="${k}">${v}</button>`).join('')}</div></div>
-    <div class="field"><label>สี / ลักษณะเด่น</label><input class="input" name="color" value="${esc(p.color)}" placeholder="เช่น ขาวลายส้ม มีจุดที่หู"></div>
-    <div class="field"><label>บันทึกเพิ่มเติม</label><textarea class="input" name="notes" placeholder="แพ้อะไร ชอบอะไร นิสัยแปลกๆ จดไว้เลย">${esc(p.notes)}</textarea></div>
+    <div class="field"><label for="pet-name">ชื่อน้อง</label><input class="input" id="pet-name" name="name" value="${esc(p.name)}" placeholder="เช่น ข้าวปั้น" maxlength="30"></div>
+    <div class="field" role="group" aria-labelledby="species-label"><span class="flabel" id="species-label">ชนิดสัตว์</span><div class="choice" data-choice="species">${Object.entries(SP).map(([k,s])=>`<button type="button" data-val="${k}" class="${p.species===k?'on':''}" aria-pressed="${p.species===k?'true':'false'}">${s.svg}${s.label}</button>`).join('')}</div></div>
+    <div class="field"><label for="pet-breed">สายพันธุ์ <span class="opt">(ไม่บังคับ)</span></label><input class="input" id="pet-breed" name="breed" value="${esc(p.breed)}" placeholder="เช่น ชิสุ, เปอร์เซีย, พันธุ์ทาง"></div>
+    <div class="two"><div class="field"><label for="birth">วันเกิด</label>${dIn("birth",p.birth,iso(today()),"birth")}</div>
+     <div class="field"><label for="pet-weight">น้ำหนัก</label><div class="unit"><input class="input" id="pet-weight" name="weight" inputmode="decimal" value="${esc(p.weight)}" placeholder="0.0"><span>กก.</span></div></div></div>
+    <div class="field" role="group" aria-labelledby="sex-label"><span class="flabel" id="sex-label">เพศ</span><div class="choice" data-choice="sex">${Object.entries(SEX).map(([k,v])=>`<button type="button" class="noic ${p.sex===k?'on':''}" data-val="${k}" aria-pressed="${p.sex===k?'true':'false'}">${v}</button>`).join('')}</div></div>
+    <div class="field"><label for="pet-color">สี / ลักษณะเด่น</label><input class="input" id="pet-color" name="color" value="${esc(p.color)}" placeholder="เช่น ขาวลายส้ม มีจุดที่หู"></div>
+    <div class="field"><label for="pet-notes">บันทึกเพิ่มเติม</label><textarea class="input" id="pet-notes" name="notes" placeholder="แพ้อะไร ชอบอะไร นิสัยแปลกๆ จดไว้เลย">${esc(p.notes)}</textarea></div>
     <input type="hidden" name="species" value="${p.species}"><input type="hidden" name="sex" value="${p.sex}">
    </form>
    <div class="form-foot"><button class="btn block" data-act="savePet">${I.check} ${id?'บันทึกการแก้ไข':'บันทึก เพิ่มน้องเลย'}</button></div></div>`;
@@ -226,30 +232,30 @@ function healthScreen(id){
   const vs=st.vaccines.filter(v=>v.petId===p.id).sort((a,b)=>({over:0,soon:1,done:2}[vstatus(a)]-{over:0,soon:1,done:2}[vstatus(b)])||(a.next||'').localeCompare(b.next||''));
   const vis=st.visits.filter(v=>v.petId===p.id).sort((a,b)=>b.date.localeCompare(a.date));
   const cnt=k=>vs.filter(v=>vstatus(v)===k).length;
-  const vacList=vs.length?`<div class="stack">${vs.map(v=>{const s=vstatus(v);return `<div class="card tap rec ${s==='over'?'over':''}" data-act="editVac" data-id="${v.id}">
+  const vacList=vs.length?`<div class="stack">${vs.map(v=>{const s=vstatus(v);return `<button type="button" class="card tap rec ${s==='over'?'over':''}" data-act="editVac" data-id="${v.id}">
       <span class="ic" style="background:${s==='over'?'var(--peach)':s==='soon'?'var(--yellow-hi)':'var(--mint)'}">${I.syringe}</span>
-      <div class="body"><div style="display:flex;gap:8px;justify-content:space-between;align-items:flex-start"><h4>${esc(v.name)}</h4><span class="status ${s}">${VS[s]}</span></div>
+      <div class="body"><div style="display:flex;gap:8px;justify-content:space-between;align-items:flex-start"><h4>${esc(v.name)}</h4>${statusChip(s)}</div>
       <div class="dates"><span><i>ฉีดเมื่อ</i> ${v.given?fmt(v.given):'ยังไม่ฉีด'}</span><span><i>ครั้งถัดไป</i> ${v.next?fmt(v.next):'—'}</span></div>
-      ${v.next?`<div class="countdown mt8">${s==='over'?'⚠ '+rel(v.next)+' แล้วนะ ทำเป็นลืม?':rel(v.next)}</div>`:''}
-      ${v.note?`<div class="note">${esc(v.note)}</div>`:''}</div></div>`}).join('')}</div>`
+      ${v.next?`<div class="countdown mt8">${s==='over'?I.warn+' '+rel(v.next)+' แล้วนะ ทำเป็นลืม?':rel(v.next)}</div>`:''}
+      ${v.note?`<div class="note">${esc(v.note)}</div>`:''}</div></button>`}).join('')}</div>`
     :`<div class="card">${emptyBox('ไม่มีวัคซีนสักเข็ม?','จดไว้หน่อย ไม่งั้นเหมียวจะมองบนทุกวัน','',true)}</div>`;
-  const visList=vis.length?`<div class="stack">${vis.map(v=>`<div class="card tap rec" data-act="editVisit" data-id="${v.id}"><span class="ic" style="background:var(--sky-bg)">${I.steth}</span>
-      <div class="body"><h4>${esc(v.reason)}</h4><div class="sub">${fmt(v.date)} · ${esc(v.clinic)}</div>${v.notes?`<div class="note">${esc(v.notes)}</div>`:''}</div></div>`).join('')}</div>`
+  const visList=vis.length?`<div class="stack">${vis.map(v=>`<button type="button" class="card tap rec" data-act="editVisit" data-id="${v.id}"><span class="ic" style="background:var(--sky-bg)">${I.steth}</span>
+      <div class="body"><h4>${esc(v.reason)}</h4><div class="sub">${fmt(v.date)} · ${esc(v.clinic)}</div>${v.notes?`<div class="note">${esc(v.notes)}</div>`:''}</div></button>`).join('')}</div>`
     :`<div class="card">${emptyBox('ยังไม่เคยไปหาหมอ','สุขภาพดี หรือแค่ยังไม่ได้จด? เหมียวสงสัย','',true)}</div>`;
   return `<div class="screen">${bar('สมุดสุขภาพ')}
-   <div class="switcher">${st.pets.map(x=>`<button class="sw ${x.id===p.id?'on':''}" data-go="#/health/${x.id}">${avatar(x,'sm')}${esc(x.name)}</button>`).join('')}</div>
+   <div class="switcher">${st.pets.map(x=>`<button type="button" class="sw ${x.id===p.id?'on':''}" data-go="#/health/${x.id}" aria-pressed="${x.id===p.id?'true':'false'}">${avatar(x,'sm')}${esc(x.name)}</button>`).join('')}</div>
    <div class="section" style="padding-top:12px"><div class="todo">
      <div class="t mint"><b>${cnt('done')}</b><span>ฉีดแล้ว</span></div><div class="t" style="background:#F4E9CB"><b>${cnt('soon')}</b><span>ใกล้ถึง</span></div><div class="t peach"><b>${cnt('over')}</b><span>เลยกำหนด</span></div></div></div>
-   <div class="section"><div class="seg"><button class="${healthTab==='vac'?'on':''}" data-htab="vac">วัคซีน</button><button class="${healthTab==='visit'?'on':''}" data-htab="visit">การพบสัตวแพทย์</button></div></div>
+   <div class="section"><div class="seg" role="tablist" aria-label="ประเภทสมุดสุขภาพ"><button type="button" class="${healthTab==='vac'?'on':''}" data-htab="vac" aria-pressed="${healthTab==='vac'?'true':'false'}">วัคซีน</button><button type="button" class="${healthTab==='visit'?'on':''}" data-htab="visit" aria-pressed="${healthTab==='visit'?'true':'false'}">การพบสัตวแพทย์</button></div></div>
    <div class="section"><div class="sec-head"><h2>${healthTab==='vac'?'วัคซีนของ'+esc(p.name):'ประวัติหาหมอของ'+esc(p.name)}</h2><button class="btn sm" data-act="${healthTab==='vac'?'addVac':'addVisit'}" data-pet="${p.id}">${I.plus} เพิ่ม</button></div>
    ${healthTab==='vac'?vacList:visList}</div>
   </div>${nav('health')}`;
 }
 
 function apptCard(a){const d=parse(a.date);const p=pet(a.petId);const t=ATYPE[a.type]||ATYPE.other;
-  return `<div class="card tap appt" data-act="viewAppt" data-id="${a.id}"><div class="datebox"><div class="m">${MS[d.getMonth()]}</div><div class="d">${d.getDate()}</div><div class="w">${WD[d.getDay()]}</div></div>
+  return `<button type="button" class="card tap appt" data-act="viewAppt" data-id="${a.id}"><div class="datebox"><div class="m">${MS[d.getMonth()]}</div><div class="d">${d.getDate()}</div><div class="w">${WD[d.getDay()]}</div></div>
    <div class="body"><h4>${esc(a.title)}</h4><div class="sub">${p?esc(p.name)+' · ':''}${I.clock} ${esc(a.time)||'—'} น.</div>
-   <div class="chips mt8"><span class="chip ${t.chip}">${I[t.ic]} ${t.label}</span><span class="chip">${rel(a.date)}</span></div></div><span class="chev">${I.chev}</span></div>`}
+   <div class="chips mt8"><span class="chip ${t.chip}">${I[t.ic]} ${t.label}</span><span class="chip">${rel(a.date)}</span></div></div><span class="chev">${I.chev}</span></button>`}
 
 let calCursor=null, calSel=null;
 function apptsScreen(q){
@@ -261,7 +267,8 @@ function apptsScreen(q){
   const byDay={};list.forEach(a=>(byDay[a.date]=byDay[a.date]||[]).push(a));
   let cells='';for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d);const has=byDay[k];
     if(i===35&&d.getMonth()!==m)break;
-    cells+=`<button class="day ${d.getMonth()!==m?'out':''} ${k===iso(today())?'today':''} ${has?'has':''} ${calSel===k?'sel':''}" data-day="${k}">${d.getDate()}<span class="dots">${has?has.slice(0,3).map(a=>`<i class="dot-${a.type}"></i>`).join(''):''}</span></button>`}
+    const dayLab=`${d.getDate()} ${ML[d.getMonth()]} ${d.getFullYear()+543}${k===iso(today())?' วันนี้':''}${has?` มีนัด ${has.length} รายการ`:''}`;
+    cells+=`<button type="button" class="day ${d.getMonth()!==m?'out':''} ${k===iso(today())?'today':''} ${has?'has':''} ${calSel===k?'sel':''}" data-day="${k}" aria-pressed="${calSel===k?'true':'false'}" aria-label="${dayLab}">${d.getDate()}<span class="dots" aria-hidden="true">${has?has.slice(0,3).map(a=>`<i class="dot-${a.type}"></i>`).join(''):''}</span></button>`}
   let body;
   if(calSel){const ds=(byDay[calSel]||[]).sort((a,b)=>a.time.localeCompare(b.time));
     body=`<div class="sec-head"><h2>${fmt(calSel)}</h2><button class="link" data-act="clearDay">ดูทั้งหมด</button></div>`+(ds.length?`<div class="stack">${ds.map(apptCard).join('')}</div>`:`<div class="card">${emptyBox('วันนี้ว่างจ้า','ไม่มีนัดเลย จะเพิ่มก็ได้นะ ไม่บังคับ',`<button class="btn sm" data-act="addAppt" data-date="${calSel}" data-pet="${petF||''}">${I.plus} เพิ่มนัดวันนี้</button>`,true)}</div>`);
@@ -300,27 +307,34 @@ const rerender=()=>{const sc=app.querySelector('.screen');const t=sc?sc.scrollTo
 window.addEventListener('hashchange',route);
 
 /* ---------- sheets ---------- */
-function openSheet(html){layer.innerHTML=`<div class="scrim" data-act="closeSheet"></div><div class="sheet"><div class="grab"></div>${html}</div>`;requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('open')))}
-function closeSheet(now){layer.classList.remove('open');if(now){layer.innerHTML='';return}setTimeout(()=>{if(!layer.classList.contains('open'))layer.innerHTML=''},300)}
-const petSelect=(sel)=>`<select class="input" name="petId">${st.pets.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.name)} (${(SP[p.species]||SP.other).label})</option>`).join('')}</select>`;
+let lastFocus=null;
+function sheetFocusables(){const sheet=layer.querySelector('.sheet');if(!sheet)return[];return [...sheet.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.getAttribute('aria-hidden')!=='true')}
+function openSheet(html){if(!layer.classList.contains('open'))lastFocus=document.activeElement;
+  layer.innerHTML=`<div class="scrim" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"><div class="grab"></div>${html}</div>`;
+  const title=layer.querySelector('h3');if(title&&!title.id)title.id='sheetTitle';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{layer.classList.add('open');const sheet=layer.querySelector('.sheet');const title=layer.querySelector('h3');if(title&&!title.id)title.id='sheetTitle';if(sheet)sheet.focus()}))}
+function closeSheet(now){const back=lastFocus;layer.classList.remove('open');
+  const done=()=>{layer.innerHTML='';if(back&&document.contains(back)&&typeof back.focus==='function'){try{back.focus()}catch(e){}}};
+  if(now){done();return}setTimeout(()=>{if(!layer.classList.contains('open'))done()},300)}
+const petSelect=(sel)=>`<select class="input" id="petId" name="petId">${st.pets.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.name)} (${(SP[p.species]||SP.other).label})</option>`).join('')}</select>`;
 
 function vacSheet(v,petId){
   const isNew=!v;v=v||{name:'',given:iso(today()),next:'',note:'',petId};
-  openSheet(`<div class="sheet-head">${mimg('em')}<div><h3>${isNew?'บันทึกวัคซีน':'แก้ไขวัคซีน'}</h3><p class="lead" style="margin:0">ของ${esc(pet(v.petId).name)} · ฉีดแล้วจดเลย อย่าดอง</p></div></div>
+  openSheet(`<div class="sheet-head">${mimg('em')}<div><h3 id="sheetTitle">${isNew?'บันทึกวัคซีน':'แก้ไขวัคซีน'}</h3><p class="lead" style="margin:0">ของ${esc(pet(v.petId).name)} · ฉีดแล้วจดเลย อย่าดอง</p></div></div>
   <form id="vacForm" data-id="${isNew?'':v.id}" data-pet="${v.petId}" novalidate>
-   <div class="field"><label>ชื่อวัคซีน</label><input class="input" name="name" value="${esc(v.name)}" placeholder="เช่น วัคซีนรวม, พิษสุนัขบ้า" list="vacNames"><datalist id="vacNames"><option value="วัคซีนรวมสุนัข (DHPPL)"><option value="วัคซีนรวมแมว (FVRCP)"><option value="วัคซีนพิษสุนัขบ้า"><option value="วัคซีนลิวคีเมียแมว (FeLV)"><option value="ยาป้องกันพยาธิหนอนหัวใจ"></datalist></div>
-   <div class="two"><div class="field"><label>วันที่ฉีด</label>${dIn("given",v.given)}</div><div class="field"><label>นัดครั้งถัดไป</label>${dIn("next",v.next)}</div></div>
-   <div class="field"><label>หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><textarea class="input" name="note" placeholder="ล็อตวัคซีน อาการหลังฉีด ฯลฯ">${esc(v.note)}</textarea></div>
+   <div class="field"><label for="vac-name">ชื่อวัคซีน</label><input class="input" id="vac-name" name="name" value="${esc(v.name)}" placeholder="เช่น วัคซีนรวม, พิษสุนัขบ้า" list="vacNames"><datalist id="vacNames"><option value="วัคซีนรวมสุนัข (DHPPL)"><option value="วัคซีนรวมแมว (FVRCP)"><option value="วัคซีนพิษสุนัขบ้า"><option value="วัคซีนลิวคีเมียแมว (FeLV)"><option value="ยาป้องกันพยาธิหนอนหัวใจ"></datalist></div>
+   <div class="two"><div class="field"><label for="given">วันที่ฉีด</label>${dIn("given",v.given,null,"given")}</div><div class="field"><label for="next">นัดครั้งถัดไป</label>${dIn("next",v.next,null,"next")}</div></div>
+   <div class="field"><label for="vac-note">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><textarea class="input" id="vac-note" name="note" placeholder="ล็อตวัคซีน อาการหลังฉีด ฯลฯ">${esc(v.note)}</textarea></div>
   </form>
   <div class="btn-row">${isNew?'':`<button class="btn white" data-act="delVac" data-id="${v.id}">${I.trash} ลบ</button>`}<button class="btn" data-act="saveVac">${I.check} บันทึก</button></div>`);
 }
 function visitSheet(v,petId){
   const isNew=!v;v=v||{date:iso(today()),clinic:'',reason:'',notes:'',petId};
-  openSheet(`<div class="sheet-head">${mimg('em')}<div><h3>${isNew?'บันทึกการหาหมอ':'แก้ไขการหาหมอ'}</h3><p class="lead" style="margin:0">ของ${esc(pet(v.petId).name)} · หมอพูดอะไร จดไว้ก่อนลืม</p></div></div>
+  openSheet(`<div class="sheet-head">${mimg('em')}<div><h3 id="sheetTitle">${isNew?'บันทึกการหาหมอ':'แก้ไขการหาหมอ'}</h3><p class="lead" style="margin:0">ของ${esc(pet(v.petId).name)} · หมอพูดอะไร จดไว้ก่อนลืม</p></div></div>
   <form id="visitForm" data-id="${isNew?'':v.id}" data-pet="${v.petId}" novalidate>
-   <div class="two"><div class="field"><label>วันที่</label>${dIn("date",v.date)}</div><div class="field"><label>สาเหตุ</label><input class="input" name="reason" value="${esc(v.reason)}" placeholder="เช่น ตรวจประจำปี"></div></div>
-   <div class="field"><label>คลินิก / โรงพยาบาล</label><input class="input" name="clinic" value="${esc(v.clinic)}" placeholder="เช่น โรงพยาบาลสัตว์ใกล้บ้าน"></div>
-   <div class="field"><label>ผลตรวจ / คำแนะนำหมอ</label><textarea class="input" name="notes" placeholder="ยาที่ได้ ผลเลือด นัดติดตาม">${esc(v.notes)}</textarea></div>
+   <div class="two"><div class="field"><label for="visit-date">วันที่</label>${dIn("date",v.date,null,"visit-date")}</div><div class="field"><label for="visit-reason">สาเหตุ</label><input class="input" id="visit-reason" name="reason" value="${esc(v.reason)}" placeholder="เช่น ตรวจประจำปี"></div></div>
+   <div class="field"><label for="visit-clinic">คลินิก / โรงพยาบาล</label><input class="input" id="visit-clinic" name="clinic" value="${esc(v.clinic)}" placeholder="เช่น โรงพยาบาลสัตว์ใกล้บ้าน"></div>
+   <div class="field"><label for="visit-notes">ผลตรวจ / คำแนะนำหมอ</label><textarea class="input" id="visit-notes" name="notes" placeholder="ยาที่ได้ ผลเลือด นัดติดตาม">${esc(v.notes)}</textarea></div>
   </form>
   <div class="btn-row">${isNew?'':`<button class="btn white" data-act="delVisit" data-id="${v.id}">${I.trash} ลบ</button>`}<button class="btn" data-act="saveVisit">${I.check} บันทึก</button></div>`);
 }
@@ -328,19 +342,19 @@ function apptSheet(a,opts){
   opts=opts||{};const isNew=!a;
   a=a||{petId:opts.pet||st.selPet||st.pets[0].id,type:'vaccine',title:'',date:opts.date||addDays(1),time:'10:00',place:'',notes:''};
   if(!pet(a.petId))a.petId=st.pets[0].id;
-  openSheet(`<div class="sheet-head">${mimg('em')}<div><h3>${isNew?'เพิ่มนัดหมาย':'แก้ไขนัดหมาย'}</h3><p class="lead" style="margin:0">นัดแล้วต้องไปนะ เหมียวจะคอยทวง</p></div></div>
+  openSheet(`<div class="sheet-head">${mimg('em')}<div><h3 id="sheetTitle">${isNew?'เพิ่มนัดหมาย':'แก้ไขนัดหมาย'}</h3><p class="lead" style="margin:0">นัดแล้วต้องไปนะ เหมียวจะคอยทวง</p></div></div>
   <form id="apptForm" data-id="${isNew?'':a.id}" novalidate>
-   <div class="field"><label>น้องตัวไหน</label>${petSelect(a.petId)}</div>
-   <div class="field"><span class="flabel">ประเภทนัด</span><div class="choice" data-choice="type">${Object.entries(ATYPE).map(([k,t])=>`<button type="button" data-val="${k}" class="${a.type===k?'on':''}">${I[t.ic]}${t.label}</button>`).join('')}</div><input type="hidden" name="type" value="${a.type}"></div>
-   <div class="field"><label>หัวข้อนัด</label><input class="input" name="title" value="${esc(a.title)}" placeholder="เช่น ฉีดวัคซีนรวมเข็มกระตุ้น"></div>
-   <div class="two"><div class="field"><label>วันที่</label>${dIn("date",a.date)}</div><div class="field"><label>เวลา</label>${tIn("time",a.time)}</div></div>
-   <div class="field"><label>สถานที่</label><input class="input" name="place" value="${esc(a.place)}" placeholder="คลินิกหรือโรงพยาบาลสัตว์"></div>
-   <div class="field"><label>หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><textarea class="input" name="notes" placeholder="เช่น งดอาหารก่อนไป">${esc(a.notes)}</textarea></div>
+   <div class="field"><label for="petId">น้องตัวไหน</label>${petSelect(a.petId)}</div>
+   <div class="field" role="group" aria-labelledby="type-label"><span class="flabel" id="type-label">ประเภทนัด</span><div class="choice" data-choice="type">${Object.entries(ATYPE).map(([k,t])=>`<button type="button" data-val="${k}" class="${a.type===k?'on':''}" aria-pressed="${a.type===k?'true':'false'}">${I[t.ic]}${t.label}</button>`).join('')}</div><input type="hidden" name="type" value="${a.type}"></div>
+   <div class="field"><label for="appt-title">หัวข้อนัด</label><input class="input" id="appt-title" name="title" value="${esc(a.title)}" placeholder="เช่น ฉีดวัคซีนรวมเข็มกระตุ้น"></div>
+   <div class="two"><div class="field"><label for="appt-date">วันที่</label>${dIn("date",a.date,null,"appt-date")}</div><div class="field"><label for="appt-time">เวลา</label>${tIn("time",a.time,"appt-time")}</div></div>
+   <div class="field"><label for="appt-place">สถานที่</label><input class="input" id="appt-place" name="place" value="${esc(a.place)}" placeholder="คลินิกหรือโรงพยาบาลสัตว์"></div>
+   <div class="field"><label for="appt-notes">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><textarea class="input" id="appt-notes" name="notes" placeholder="เช่น งดอาหารก่อนไป">${esc(a.notes)}</textarea></div>
   </form>
   <button class="btn block" data-act="saveAppt">${I.check} ${isNew?'บันทึกนัด':'บันทึกการแก้ไข'}</button>`);
 }
 function apptDetail(a){const p=pet(a.petId);const t=ATYPE[a.type]||ATYPE.other;
-  openSheet(`<div class="sheet-head">${p?avatar(p):''}<div><span class="chip ${t.chip}">${I[t.ic]} ${t.label}</span><h3 style="margin-top:6px">${esc(a.title)}</h3></div></div>
+  openSheet(`<div class="sheet-head">${p?avatar(p):''}<div><span class="chip ${t.chip}">${I[t.ic]} ${t.label}</span><h3 id="sheetTitle" style="margin-top:6px">${esc(a.title)}</h3></div></div>
   <div class="card rows">
    <div class="row"><span class="k">น้อง</span><span class="v">${p?esc(p.name):'—'}</span></div>
    <div class="row"><span class="k">วันที่</span><span class="v">${fmtLong(a.date)}<div class="countdown">${rel(a.date)}</div></span></div>
@@ -351,26 +365,50 @@ function apptDetail(a){const p=pet(a.petId);const t=ATYPE[a.type]||ATYPE.other;
   <div class="btn-row mt16"><button class="btn white" data-act="delAppt" data-id="${a.id}">${I.trash} ลบนัด</button><button class="btn" data-act="editAppt" data-id="${a.id}">${I.edit} แก้ไข</button></div>`);
 }
 function confirmSheet(title,text,act,id,label){
-  openSheet(`<div class="center"><div class="confirm-art"><img src="${M().img}" alt=""></div><h3>${title}</h3><p class="lead">${text}</p></div>
+  openSheet(`<div class="center"><div class="confirm-art"><img src="${M().img}" alt=""></div><h3 id="sheetTitle">${title}</h3><p class="lead">${text}</p></div>
   <div class="btn-row"><button class="btn white" data-act="closeSheet">ไม่ลบแล้ว</button><button class="btn danger" data-act="${act}" data-id="${id}">${I.trash} ${label||'ลบเลย'}</button></div>`);
 }
 function settingsSheet(){
-  openSheet(`<h3>ตั้งค่า</h3><p class="lead">มาสคอตประจำแอป จะโผล่ทุกหน้าคอยมองบนใส่คุณ</p>${mascotCard()}
+  openSheet(`<h3 id="sheetTitle">ตั้งค่า</h3><p class="lead">มาสคอตประจำแอป จะโผล่ทุกหน้าคอยมองบนใส่คุณ</p>${mascotCard()}
   <div class="card mt16 rows"><div class="row"><span class="k">เวอร์ชัน</span><span class="v">ต้นแบบ 0.2 (เก็บข้อมูลในเครื่อง)</span></div></div>
   <div class="btn-row mt16"><button class="btn white" data-act="reset">ล้างข้อมูลตัวอย่าง</button><button class="btn" data-act="closeSheet">เรียบร้อย</button></div>`);
 }
 
 /* ---------- form utils ---------- */
 const fdata=f=>Object.fromEntries(new FormData(f).entries());
-function need(f,names){let ok=true;names.forEach(n=>{let el=f.elements[n];const bad=!String(el.value).trim();if(el.classList.contains('dnative'))el=el.parentElement;el.classList.toggle('err',bad);
-  const nx=el.parentElement.querySelector('.err-msg');if(nx)nx.remove();
-  if(bad){ok=false;el.insertAdjacentHTML('afterend','<div class="err-msg">ช่องนี้ต้องกรอกนะ อย่าขี้เกียจ</div>')}});return ok}
+const REQ={petForm:['name'],vacForm:['name'],visitForm:['reason','date'],apptForm:['title','date']};
+function markErr(input,bad){
+  if(!input)return;
+  const field=input.classList&&input.classList.contains('dnative')?input.parentElement:input;
+  field.classList.toggle('err',!!bad);
+  const eid=(input.id||input.name||'field')+'-err';
+  let err=document.getElementById(eid);
+  if(bad){
+    input.setAttribute('aria-invalid','true');
+    input.setAttribute('aria-describedby',eid);
+    if(!err){field.insertAdjacentHTML('afterend',`<div class="err-msg" id="${eid}" role="alert">ช่องนี้ต้องกรอกนะ อย่าขี้เกียจ</div>`)}
+  }else{
+    input.removeAttribute('aria-invalid');
+    input.removeAttribute('aria-describedby');
+    if(err)err.remove();
+  }
+}
+function need(f,names){let ok=true;names.forEach(n=>{const el=f.elements[n];const bad=!String(el&&el.value||'').trim();markErr(el,bad);if(bad)ok=false});return ok}
+document.addEventListener('focusout',e=>{
+  const el=e.target;if(!el||!el.name)return;
+  const f=el.closest('form');if(!f||!REQ[f.id]||!REQ[f.id].includes(el.name))return;
+  markErr(el,!String(el.value).trim());
+},true);
+document.addEventListener('input',e=>{
+  const el=e.target;if(!el||!el.name||el.getAttribute('aria-invalid')!=='true')return;
+  if(String(el.value).trim())markErr(el,false);
+});
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-go],[data-back],[data-act],[data-htab],[data-cal],[data-day],.choice button');
   if(!t)return;
-  if(t.matches('.choice button')){const box=t.parentElement;box.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===t));
+  if(t.matches('.choice button')){const box=t.parentElement;box.querySelectorAll('button').forEach(b=>{const on=b===t;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
     const form=t.closest('form');form.elements[box.dataset.choice].value=t.dataset.val;return}
   if(t.dataset.go){go(t.dataset.go);return}
   if(t.dataset.back){go(t.dataset.back);return}
@@ -393,11 +431,13 @@ document.addEventListener('click',e=>{
    case 'addVac':vacSheet(null,t.dataset.pet);break;
    case 'editVac':vacSheet(st.vaccines.find(v=>v.id===id));break;
    case 'saveVac':{const f=$('#vacForm');if(!need(f,['name']))return;const d=fdata(f);if(f.dataset.id)Object.assign(st.vaccines.find(v=>v.id===f.dataset.id),d);else st.vaccines.push({id:uid(),petId:f.dataset.pet,...d});save();closeSheet();healthTab='vac';rerender();toast('จดวัคซีนแล้ว เก่งเกินคาด');break}
-   case 'delVac':st.vaccines=st.vaccines.filter(v=>v.id!==id);save();closeSheet();rerender();toast('ลบวัคซีนแล้ว');break;
+   case 'delVac':confirmSheet('ลบวัคซีนนี้?','ประวัติเข็มนี้จะหายไปเลย กู้คืนไม่ได้นะ','doDelVac',id,'ลบเลย');break;
+   case 'doDelVac':st.vaccines=st.vaccines.filter(v=>v.id!==id);save();closeSheet();rerender();toast('ลบวัคซีนแล้ว');break;
    case 'addVisit':visitSheet(null,t.dataset.pet);break;
    case 'editVisit':visitSheet(st.visits.find(v=>v.id===id));break;
    case 'saveVisit':{const f=$('#visitForm');if(!need(f,['reason','date']))return;const d=fdata(f);if(f.dataset.id)Object.assign(st.visits.find(v=>v.id===f.dataset.id),d);else st.visits.push({id:uid(),petId:f.dataset.pet,...d});save();closeSheet();healthTab='visit';rerender();toast('บันทึกการหาหมอแล้ว');break}
-   case 'delVisit':st.visits=st.visits.filter(v=>v.id!==id);save();closeSheet();rerender();toast('ลบบันทึกแล้ว');break;
+   case 'delVisit':confirmSheet('ลบบันทึกการหาหมอ?','รายการนี้จะหายไปเลย กู้คืนไม่ได้นะ','doDelVisit',id,'ลบเลย');break;
+   case 'doDelVisit':st.visits=st.visits.filter(v=>v.id!==id);save();closeSheet();rerender();toast('ลบบันทึกแล้ว');break;
    case 'addAppt':apptSheet(null,{date:t.dataset.date||null,pet:t.dataset.pet||null});break;
    case 'viewAppt':apptDetail(st.appts.find(x=>x.id===id));break;
    case 'editAppt':apptSheet(st.appts.find(x=>x.id===id));break;
@@ -407,6 +447,15 @@ document.addEventListener('click',e=>{
    case 'doDelAppt':st.appts=st.appts.filter(x=>x.id!==id);save();closeSheet();rerender();toast('ยกเลิกนัดแล้ว');break;
    case 'clearDay':calSel=null;rerender();break;
   }
+});
+document.addEventListener('keydown',e=>{
+  if(!layer.querySelector('.sheet'))return;
+  if(e.key==='Escape'){e.preventDefault();closeSheet();return}
+  if(e.key!=='Tab')return;
+  const list=sheetFocusables();if(!list.length)return;
+  const first=list[0],last=list[list.length-1];
+  if(e.shiftKey&&(document.activeElement===first||!layer.contains(document.activeElement))){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
 });
 route();
 })();

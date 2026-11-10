@@ -371,3 +371,161 @@ body{color:var(--text)}
 .sc.y{background:var(--cream)} .sc.m{background:var(--mint-bg)}
 .sc .ic{border:1.5px solid #E6D8BE;background:var(--milk)}
 .pet-hero .avatar.lg{transform:none}
+
+/* ===== Soft UI Evolution: contrast, motion, a11y, touch ===== */
+:root{
+  --soy-btn:#7A5A32;
+  --brown:#6B4E2E;
+  --muted:#5A584F;
+  --err:#8B4A3C;
+  --danger:#8B4A3C;
+  --status-done:#4A5E40;
+  --status-soon:#6B4E2E;
+  --status-over:#8B4A3C;
+  --ease-out:cubic-bezier(.22,.7,.3,1);
+  --ease-spring:cubic-bezier(.2,.85,.3,1.18);
+  --dur-fast:160ms;
+  --dur-med:220ms;
+  --dur-sheet:280ms;
+  --hard:0 1px 2px rgba(90,70,40,.06),0 4px 12px rgba(90,70,40,.08);
+  --hard-sm:0 1px 2px rgba(90,70,40,.05),0 2px 8px rgba(90,70,40,.07);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html{-webkit-text-size-adjust:100%}
+button,a,.tap,.day,.choice button,.sw,.link{touch-action:manipulation}
+.muted,.pet-meta,.rec .sub,.empty p,.sec-head .meta,.legend,.datebox .w,.appt .sub,.rows .k,.pick small,.stat span,.nav button,.seg button,.flabel .opt,.field .opt,.dpick .dshow.ph{color:var(--muted)}
+.hero-sub,.pet-hero p,.todo .t span,.sc span,.splash .tag,.splash .hint,.rec .dates,.countdown{color:var(--brown)}
+.link{color:var(--brown)}
+.err-msg{color:var(--err)}
+.dpick .dshow.ph{color:var(--muted);font-weight:500}
+
+/* Filled soy + cream must use deeper soy for 4.5:1 */
+.btn,.btn.ink,.fab,.nav button.on,.sw.on,.day.sel,.pick.on{background:var(--soy-btn);color:#FFFDF8}
+.btn{border:0;box-shadow:var(--hard)}
+.fab{border:0;box-shadow:0 6px 16px rgba(122,90,50,.28)}
+.nav button.on{border:0;color:#FFFDF8}
+.nav button.on svg path,.nav button.on svg rect,.nav button.on svg circle{stroke:#FFFDF8}
+.nav button.on svg circle[fill]{fill:#FFFDF8}
+.sw.on{border-color:var(--soy-btn)}
+.day.sel{border:1.5px solid var(--soy-btn);color:#FFFDF8}
+.pick.on b{color:#FFFDF8}.pick.on small{color:#F4E9CB}
+.btn.danger{background:var(--danger);color:#FFFDF8}
+.btn.danger svg path{stroke:#FFFDF8}
+.datebox .m{background:var(--cream);color:var(--brown)}
+.status.done{background:var(--mint-bg);color:var(--status-done)}
+.status.soon{background:var(--cream);color:var(--status-soon)}
+.status.over{background:var(--peach-bg);color:var(--status-over)}
+.day.out{color:#6A675C}
+.tip b,.link{color:var(--brown)}
+
+/* Focus */
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--soy-btn);outline-offset:2px}
+.input:focus,.input:focus-visible,.dpick.input:focus-within{
+  border-color:var(--soy-btn);
+  box-shadow:0 0 0 3px rgba(122,90,50,.28);
+  background:#fff;
+  outline:2px solid var(--soy-btn);
+  outline-offset:1px;
+}
+button.card:focus-visible,button.t:focus-visible,.sc:focus-visible,.fab:focus-visible{
+  outline:2px solid var(--soy-btn);outline-offset:2px;
+}
+
+/* Motion tokens + springy press */
+.btn,.fab,.icon-btn,.tap,.nav button,.choice button,.sw,.day,.seg button,.pick,.sc,.link{
+  transition:transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-med) var(--ease-out), color var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+.btn:active,.fab:active,.icon-btn:active,.tap:active,.nav button:active,.choice button:active,.sw:active,.day:active,.seg button:active,.pick:active,.sc:active{
+  transform:scale(.97) translateY(1px);
+  box-shadow:0 1px 3px rgba(90,70,40,.12);
+}
+.sheet{transition:transform var(--dur-sheet) var(--ease-spring)}
+.scrim{transition:opacity var(--dur-med) var(--ease-out)}
+.toast{transition:transform var(--dur-sheet) var(--ease-spring)}
+.splash-mascot img{animation:bob 2.6s ease-in-out 3}
+@keyframes mascotReact{
+  0%{transform:scale(1.12) rotate(0)}
+  28%{transform:scale(1.2) rotate(-7deg)}
+  58%{transform:scale(1.14) rotate(5deg)}
+  100%{transform:scale(1.12) rotate(0)}
+}
+img.mascot-react{animation:mascotReact .55s var(--ease-spring)}
+
+@media (prefers-reduced-motion:reduce){
+  .splash-mascot img,img.mascot-react{animation:none!important}
+  .btn,.fab,.icon-btn,.tap,.nav button,.choice button,.sw,.day,.seg button,.pick,.sc,.link,.sheet,.scrim,.toast{
+    transition:none!important;
+  }
+  .btn:active,.fab:active,.icon-btn:active,.tap:active,.nav button:active,.choice button:active,.sw:active,.day:active,.seg button:active,.pick:active,.sc:active{
+    transform:none;
+    filter:brightness(.96);
+  }
+}
+
+/* Touch targets 44px + 8px gaps */
+.icon-btn,.cal-head .icon-btn{width:44px;height:44px}
+.btn.sm,.seg button{height:44px}
+.choice{gap:8px}
+.choice button{min-height:44px;padding:8px 14px 8px 8px}
+.choice button.noic{padding:8px 16px}
+.sw{min-height:44px;padding:5px 14px 5px 5px}
+.chips{gap:8px}
+.cal-grid{gap:8px}
+.day{min-height:44px;min-width:44px}
+.link{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+.sec-head{gap:8px}
+
+/* Calendar needs to be nearly full-bleed to fit 44px cells + 8px gaps */
+.section:has(.card.cal){padding-left:8px;padding-right:8px}
+.card.cal{padding:12px 8px 16px}
+
+/* Safe areas + FAB/nav clearance */
+.hero-head{padding-top:calc(22px + var(--safe-top))}
+.bar{padding-top:calc(14px + var(--safe-top))}
+.top-actions{top:calc(18px + var(--safe-top))}
+.splash{padding:calc(56px + var(--safe-top)) 24px calc(34px + var(--safe-bottom))}
+.nav{bottom:calc(14px + var(--safe-bottom))}
+.fab{bottom:calc(100px + var(--safe-bottom))}
+.screen{padding-bottom:calc(176px + var(--safe-bottom))}
+.screen.no-nav{padding-bottom:calc(12px + var(--safe-bottom))}
+.form-foot{padding-bottom:calc(22px + var(--safe-bottom))}
+.sheet{padding-bottom:calc(26px + var(--safe-bottom))}
+.toast{top:calc(18px + var(--safe-top))}
+
+/* Real <button> cards */
+button.card,button.t{
+  width:100%;
+  text-align:left;
+  font:inherit;
+  color:inherit;
+  display:flex;
+}
+.todo button.t{display:block;flex:1;width:auto}
+button.card.pet-card,button.card.rec,button.card.appt{display:flex}
+
+/* Status chips with icons */
+.status svg{width:13px;height:13px;flex:none}
+.status{gap:5px}
+.countdown svg{width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:4px}
+
+/* Hover for pointer devices */
+@media (hover:hover) and (pointer:fine){
+  .btn:hover,.fab:hover{filter:brightness(1.05)}
+  .btn.white:hover,.icon-btn:hover,.choice button:hover,.sw:hover,.day:hover,.seg button:hover{
+    background:#F7F1E3;
+  }
+  button.card.tap:hover,.sc:hover{box-shadow:0 2px 10px rgba(90,70,40,.12)}
+}
+
+/* Soft UI: slightly clearer surfaces, calmer chrome */
+.card,.nav,.seg,.input,.stat,.datebox{background:var(--milk)}
+.card{box-shadow:var(--hard)}
+
+.nav button svg path,.nav button svg rect,.nav button svg circle{stroke:var(--muted)}
+.nav button.on svg path,.nav button.on svg rect,.nav button.on svg circle{stroke:#FFFDF8}
+.status.done svg path,.status.done svg circle{stroke:var(--status-done)}
+.status.soon svg path,.status.soon svg circle{stroke:var(--status-soon)}
+.status.over svg path,.status.over svg circle,.countdown svg path,.countdown svg circle{stroke:currentColor}
+.status svg circle[fill],.countdown svg circle[fill]{fill:currentColor}
