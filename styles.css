@@ -822,3 +822,80 @@ fieldset.field legend{padding:0;margin-bottom:8px}
 .sw.on{background:var(--cream);color:var(--ink);border:2px solid #7A5A32;box-shadow:none}
 .sw.on .pdot{border-color:rgba(65,70,72,.45)}
 .sw.on svg path{stroke:#7A5A32}
+
+/* ===== v0.4 (รอบปรับตามทีม) ===== */
+/* ไม่มีปุ่มลอยแล้ว: เว้นที่ให้แค่เมนูล่าง */
+.screen{padding-bottom:calc(112px + var(--safe-bottom))}
+/* ปุ่มบนแถบด้านบน */
+.bar-acts{display:flex;align-items:center;gap:8px;flex:none}
+.bar:has(.bar-acts) h1{font-size:19px}
+.btn.sm.bar-add{height:44px;min-height:44px;padding:0 14px 0 10px;gap:4px;font-size:16px}
+.btn.sm.bar-add svg{width:18px;height:18px}
+.fbtn{position:relative}
+.fbtn.on{background:var(--cream);border:2px solid #7A5A32}
+.fbtn.on svg path{stroke:#7A5A32}
+.fbadge{position:absolute;top:1px;right:1px;width:13px;height:13px;border-radius:50%;background:#8B4A3C;border:2px solid #FFFDF8}
+.fsum{display:flex;align-items:center;gap:8px;margin:10px 18px 0;padding:2px 4px 2px 12px;background:var(--cream);border-radius:14px;font-size:.9rem;color:var(--brown);font-weight:600}
+.fs-ic{display:grid;place-items:center;flex:none}.fs-ic svg{width:18px;height:18px}
+.fs-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fs-t b{color:var(--ink)}
+/* จุดสีในปฏิทิน = สีประจำตัวน้อง (สูงสุด 3 จุด แล้ว +) */
+.cdots{display:flex;align-items:center;justify-content:center;gap:2px;height:9px;margin-top:3px}
+.pdot.cdot{width:8px;height:8px;border:1.5px solid rgba(65,70,72,.62)}
+.day.sel .pdot.cdot{border-color:#FFFDF8}
+.cmore{font-size:12px;font-weight:800;line-height:1;color:var(--ink);margin-left:1px}
+.day.sel .cmore{color:#FFFDF8}
+.cal-foot{flex-direction:column;align-items:flex-start;gap:6px;padding:0 6px}
+.legend .pdot.cdot{width:12px;height:12px}
+.legend>span{gap:6px;color:var(--ink)}
+.cal-note{margin:0;font-size:.8rem;color:var(--muted);font-weight:600;line-height:1.4}
+/* แผ่นกรอง */
+.ck-list.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ck-ic{display:grid;place-items:center;flex:none}.ck-ic svg{width:20px;height:20px}
+.ck:has(input:disabled){opacity:.75;cursor:default}
+/* แผ่นเลือกน้อง */
+.pick-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.prow{width:100%;display:flex;align-items:center;gap:12px;min-height:62px;padding:10px 14px;border:1.5px solid #E6D8BE;border-radius:18px;background:var(--milk);text-align:left;font:inherit;color:inherit;box-shadow:var(--hard-sm)}
+.pdot.prow-dot{width:22px;height:22px}
+.prow-b{flex:1;display:flex;flex-direction:column;min-width:0}
+.prow-b b{font-family:var(--font-d);font-weight:500;font-size:17px;color:var(--ink)}
+.prow-b span{font-size:.875rem;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow>svg{width:20px;height:20px;flex:none}
+.prow.add{background:var(--cream);border:1.5px dashed #9C7649}
+.prow-plus{width:26px;height:26px;border-radius:50%;background:#7A5A32;color:#FFFDF8;display:grid;place-items:center;flex:none}
+.prow-plus svg{width:15px;height:15px}
+/* สมุดสุขภาพ: ชิป «ทั้งหมด» + กล่องสถานะใหญ่ */
+.sw-dots{display:flex;align-items:center}
+.sw-dots .pdot{width:13px;height:13px;margin-left:-5px;box-shadow:0 0 0 1.5px #FFFDF8}
+.sw-dots .pdot:first-child{margin-left:0}
+.hint-s.center{text-align:center;margin-top:8px}
+.todo.big{gap:12px}
+.todo.big .t{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:20px;min-height:116px}
+.todo.big .t-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.todo.big .t-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#FFFDF8}
+.todo.big .t-ic svg{width:22px;height:22px}
+.todo.big .t b{font-size:36px;line-height:1}
+.todo.big .t .t-lab{font-family:var(--font-d);font-weight:500;font-size:17px;color:var(--ink)}
+.todo.big .t small{font-size:.875rem;color:var(--muted);font-weight:600;line-height:1.35}
+.todo.big .t.soon{background:var(--cream)}
+.todo.big .t.over{background:var(--surface)}
+.todo.big .t.over.has{background:var(--peach-bg);border-color:#E8C2B6}
+.todo.big .t.over.has b{color:#8B4A3C}
+.todo.big .t.soon.has b{color:#6B4E2E}
+.rec-top .pbadge{max-width:100%}
+/* แชร์รายตัว */
+.member{gap:8px}
+.mb-b{flex:1;display:flex;flex-direction:column;min-width:0;gap:2px}
+.mb-name{font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mb-pets{display:flex;align-items:center;gap:6px;min-width:0}
+.mb-dots{display:flex;gap:3px;flex:none}
+.mb-dots .pdot{width:12px;height:12px}
+.mb-ptxt{font-size:.85rem;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.member .role{flex:none}
+.mb-top{display:flex;align-items:center;gap:6px;min-width:0}
+.mb-top .role{flex:none;padding:1px 8px}
+.mb-pets{align-items:flex-start}
+.mb-dots{padding-top:4px}
+.mb-ptxt{white-space:normal;line-height:1.35}
+.cdots{height:10px;gap:3px}
+.pdot.cdot{width:9px;height:9px}
+.legend .pdot.cdot{width:12px;height:12px}

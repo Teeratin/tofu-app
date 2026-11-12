@@ -1,7 +1,7 @@
-/* เต้าหู้ — UX/UI prototype 0.3 (vanilla JS, localStorage schema 3) */
+/* เต้าหู้ — UX/UI prototype 0.4 (vanilla JS, localStorage schema 4) */
 (function(){
 'use strict';
-const KEY='tofu.v3', OLD_KEYS=['tofu.v2'], SCHEMA=3, SOON=7; /* SOON: เกณฑ์ «ใกล้ถึง» เดียวทั้งแอป = 7 วัน (วันนี้ถึงอีก 6 วัน) */
+const KEY='tofu.v4', OLD_KEYS=['tofu.v3','tofu.v2'], SCHEMA=4, SOON=7; /* SOON: เกณฑ์ «ใกล้ถึง» เดียวทั้งแอป = 7 วัน (วันนี้ถึงอีก 6 วัน) */
 const $=s=>document.querySelector(s);
 const app=$('#app'), layer=$('#sheetLayer'), dlg=$('#dlgLayer'), toastEl=$('#toast');
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -64,6 +64,7 @@ const I={
  repeat:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M4.5 11V9.5a3 3 0 0 1 3-3h11M15.5 3.5l3 3-3 3M19.5 13v1.5a3 3 0 0 1-3 3h-11M8.5 20.5l-3-3 3-3"/></svg>`,
  lock:`<svg viewBox="0 0 24 24" fill="none" ${S}><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`,
  warn:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M12 4.2 20.5 19H3.5L12 4.2z"/><path d="M12 10v4.5" stroke-width="2.4"/><circle cx="12" cy="17" r="1" fill="#414648"/></svg>`,
+ funnel:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M4 5.2h16l-6.2 7.5v5.6l-3.6 1.9v-7.5z"/></svg>`,
  list:`<svg viewBox="0 0 24 24" fill="none" ${S}><path d="M9 6.5h10.5M9 12h10.5M9 17.5h10.5"/><circle cx="5" cy="6.5" r="1.2"/><circle cx="5" cy="12" r="1.2"/><circle cx="5" cy="17.5" r="1.2"/></svg>`,
 };
 Object.keys(I).forEach(k=>{I[k]=I[k].replace('<svg ','<svg aria-hidden="true" focusable="false" ')});
@@ -103,7 +104,7 @@ const NIM_DESC='ก้อนเต้าหู้ไหมหน้าตาย 
 
 /* ---------- state + migration ---------- */
 const genCode=()=>String(Math.floor(100000+Math.random()*900000));
-const familyDefault=()=>({code:genCode(),members:[{id:uid(),name:'ฉัน',role:'owner',self:true}]});
+const familyDefault=()=>({code:genCode(),members:[{id:uid(),name:'ฉัน',role:'owner',self:true,pets:[]}]});
 function seed(){
   const p1=uid(),p2=uid(),p3=uid();const w=(n,kg)=>({id:uid(),date:addDays(n),kg});
   const V=(petId,type,given,next,name,note)=>({id:uid(),petId,type,name:name||'',given:addDays(given),next:next==null?'':addDays(next),note:note||''});
@@ -130,6 +131,7 @@ function seed(){
       A(p2,'vaccine','ฉีดวัคซีนพิษสุนัขบ้า (ตามนัดที่เลยมา)',3,'09:00','คลินิกหมอหมา บางนา',{vacKey:'rabies',notes:'งดอาหารก่อน 2 ชั่วโมง'}),
       A(p1,'grooming','อาบน้ำตัดเล็บ',6,'13:00','ร้านหอมกรุ่น เพ็ทสปา'),
       A(p3,'checkup','ตรวจฟันซ้ำ',8,'14:00','โรงพยาบาลสัตว์เล็กและสัตว์แปลก'),
+      A(p2,'grooming','อาบน้ำแปรงขน',6,'15:00','ร้านหอมกรุ่น เพ็ทสปา'),A(p3,'grooming','ตัดเล็บ',6,'16:00','ร้านหอมกรุ่น เพ็ทสปา'),
       A(p1,'vaccine','ฉีดวัคซีนรวมแมว 3 โรค ประจำปี',15,'10:30','โรงพยาบาลสัตว์ทองหล่อ',{vacKey:'cat_3in1',notes:'พาใส่กระเป๋าแมว อย่าให้หนี'}),
       A(p2,'checkup','ตรวจติดตามอาการขาหลัง',20,'16:00','คลินิกหมอหมา บางนา'),
       A(p3,'checkup','ตรวจผิวหนังที่หลัง',-4,'','โรงพยาบาลสัตว์เล็กและสัตว์แปลก'),
@@ -140,7 +142,7 @@ function seed(){
       {id:uid(),petId:p2,title:'ป้อนยาแก้อักเสบหลังอาหาร',time:'19:00',start:addDays(-2),end:addDays(4),paused:false},
       {id:uid(),petId:p1,title:'แปรงฟันมะลิ',time:'21:00',start:addDays(-10),end:'',paused:false},
     ],
-    family:{code:genCode(),members:[{id:uid(),name:'ฉัน',role:'owner',self:true},{id:uid(),name:'แม่',role:'carer'}]},
+    family:{code:genCode(),members:[{id:uid(),name:'ฉัน',role:'owner',self:true,pets:[p1,p2,p3]},{id:uid(),name:'แม่',role:'carer',pets:[p1,p2,p3]},{id:uid(),name:'พี่ฝ้าย พี่เลี้ยง',role:'carer',pets:[p2]}]},
   };
 }
 const COLOR_WORDS=[['สามสี','calico'],['ลาย','calico'],['ขาว','white'],['ครีม','cream'],['ทอง','gold'],['ส้ม','orange'],['น้ำตาล','brown'],['เทา','gray'],['ดำ','black']];
@@ -166,14 +168,19 @@ function migrate2to3(s){
   s.notes=s.notes||[];s.reminders=s.reminders||[];s.family=s.family||familyDefault();
   delete s.mascot;s.schema=3;return s;
 }
+/* schema 3 -> 4: สมาชิกครอบครัวมีรายการน้องที่ดูได้ (pets) สมาชิกเดิมได้ทุกตัว */
+function migrate3to4(s){const all=(s.pets||[]).map(p=>p.id);s.family=s.family||familyDefault();
+  s.family.members=(s.family.members||[]).map(m=>Object.assign({},m,{pets:m.role==='owner'?all.slice():(Array.isArray(m.pets)?m.pets.filter(id=>all.includes(id)):all.slice())}));
+  s.schema=4;return s}
 function migrate(s){if(!s||!Array.isArray(s.pets))return null;let v=Number(s.schema)||2;
   if(v<3){s=migrate2to3(s);v=3}
+  if(v<4){s=migrate3to4(s);v=4}
   s.schema=SCHEMA;['vaccines','visits','appts','notes','reminders'].forEach(k=>{if(!Array.isArray(s[k]))s[k]=[]});if(!s.family)s.family=familyDefault();return s}
 let migratedFrom=null;
 function load(){let s=null;
   try{const raw=localStorage.getItem(KEY);if(raw)s=JSON.parse(raw)}catch(e){s=null}
   if(!s){for(const k of OLD_KEYS){try{const raw=localStorage.getItem(k);if(raw){s=JSON.parse(raw);migratedFrom=k;break}}catch(e){}}}
-  /* ข้อมูลเก่าใน tofu.v2 ไม่ถูกลบ เก็บไว้เป็นสำเนาสำรอง */
+  /* ข้อมูลเก่าใน tofu.v3 / tofu.v2 ไม่ถูกลบ เก็บไว้เป็นสำเนาสำรอง */
   return migrate(s)||seed();
 }
 let st=load();
@@ -282,27 +289,31 @@ function summaryBoxes(){
   return `<div class="sum" role="group" aria-label="สรุป">${next}${over}</div>`;
 }
 function homeScreen(){
-  const g=greet();const sel=pet(st.selPet)||st.pets[0];const remN=st.reminders.filter(r=>!remEnded(r)).length;
+  const g=greet();const remN=st.reminders.filter(r=>!remEnded(r)&&pet(r.petId)).length;const n=st.pets.length;
   const cards=[
-    ['t1','paw','โปรไฟล์สัตว์',sel?`ดูของ${esc(sel.name)} · ทั้งหมด ${st.pets.length} ตัว`:'ยังไม่มีน้อง เพิ่มเลย',sel?'#/pet/'+sel.id:'#/pet/new'],
+    ['t1','paw','โปรไฟล์สัตว์',n?`${n} ตัว · แตะเพื่อเลือกน้อง`:'ยังไม่มีน้อง เพิ่มเลย','act:petPicker'],
     ['t2','book','สมุดสุขภาพ','วัคซีน หาหมอ โน๊ต และรูป','#/health'],
-    ['t3','bell','ตั้งแจ้งเตือน',remN?`เตือนประจำ ${remN} รายการ · ในแอปเท่านั้น`:'เตือนซ้ำทุกวัน เช่น ป้อนยา','#/appts?rem=1'],
-    ['t4','share','แชร์ให้ครอบครัว',`สมาชิก ${st.family.members.length} คน · ตัวอย่าง`,'#/share'],
+    ['t3','bell','ตั้งแจ้งเตือน',remN?`เตือนประจำ ${remN} รายการ · ในแอปเท่านั้น`:'เตือนซ้ำทุกวัน เช่น ป้อนยา','#/reminders'],
+    ['t4','share','แชร์ให้ครอบครัว',`สมาชิก ${st.family.members.length} คน · เลือกแชร์รายตัวได้`,'#/share'],
   ];
-  let list;
-  if(!st.pets.length)list=emptyBox('ว่างเปล่า... เหมือนกล่องเต้าหู้','ยังไม่มีน้องสักตัว เพิ่มมาหน่อยสิ นิ่มเหงา',`<button type="button" class="btn" data-go="#/pet/new">${I.plus} เพิ่มสัตว์เลี้ยงตัวแรก</button>`);
-  else list=`<div class="stack">${st.pets.map(p=>{const ov=overdueItems(p.id).length;const n=upcoming(p.id)[0];
-    return `<button type="button" class="card tap pet-card" data-go="#/pet/${p.id}">${avatar(p)}
-      <span class="pet-info"><span class="pet-name">${esc(p.name)}</span><span class="pet-meta">${petMeta(p)}</span>
-      <span class="chips">${ov?`<span class="chip peach">${I.warn} เลยกำหนด ${ov}</span>`:''}${n?`<span class="chip ${in7(n.date)?'yellow':''}">${I.cal} ถัดไป ${fmt(n.date)}</span>`:(!ov?'<span class="chip">ยังไม่มีนัด</span>':'')}</span></span>
-      <span class="chev">${I.chev}</span></button>`}).join('')}</div>`;
+  const cardBtn=([t,ic,b,sub,h])=>`<button type="button" class="mcard ${t} tap" ${h.startsWith('act:')?`data-act="${h.slice(4)}" aria-haspopup="dialog"`:`data-go="${h}"`}><span class="ic">${I[ic]}</span><b>${b}</b><span class="sub">${sub}</span></button>`;
+  const empty=n?'':`<section class="section">${emptyBox('ว่างเปล่า... เหมือนกล่องเต้าหู้','ยังไม่มีน้องสักตัว เพิ่มมาหน่อยสิ นิ่มเหงา',`<button type="button" class="btn" data-go="#/pet/new">${I.plus} เพิ่มสัตว์เลี้ยงตัวแรก</button>`)}</section>`;
   return `<div class="screen home">
     <header class="hero"><div class="hero-text"><span class="time-pill">${I.clock}${g.k}</span><p class="bubble">${g.hi}</p><h1 class="hero-title">${g.q}</h1><p class="hero-date">${fmtLong(todayIso())}</p></div>${nimImg('main','hero-nim',136)}</header>
     <section class="section">${summaryBoxes()}</section>
-    <section class="section" aria-labelledby="menuH"><h2 id="menuH" class="sr-only">เมนูหลัก</h2><div class="menu-grid">${cards.map(([t,ic,b,s,h])=>`<button type="button" class="mcard ${t} tap" data-go="${h}"><span class="ic">${I[ic]}</span><b>${b}</b><span class="sub">${s}</span></button>`).join('')}</div></section>
-    <section class="section"><div class="sec-head"><h2>สัตว์เลี้ยงของฉัน <span class="meta">${st.pets.length} ตัว</span></h2>${st.pets.length?`<button type="button" class="btn sm" data-go="#/pet/new">${I.plus} เพิ่มน้อง</button>`:''}</div>${list}</section>
+    <section class="section" aria-labelledby="menuH"><h2 id="menuH" class="sr-only">เมนูหลัก</h2><div class="menu-grid">${cards.map(cardBtn).join('')}</div></section>
+    ${empty}
   </div>${nav('home')}`;
 }
+/* แผ่นเลือกน้อง: ใช้ทั้งหน้าแรก (เปิดโปรไฟล์) และสมุดสุขภาพตอนเลือก «ทั้งหมด» (ถามน้องก่อนกรอก) */
+const prow=(p,attrs)=>`<li><button type="button" class="prow tap" ${attrs}>${dot(p,'prow-dot')}<span class="prow-b"><b>${esc(p.name)}</b><span>${petMeta(p)}</span></span>${I.chev}</button></li>`;
+function petPickerSheet(){
+  openSheet(`${sheetHead('ดูโปรไฟล์น้องตัวไหน',st.pets.length?'เลือกน้องที่จะเปิดดูข้อมูล':'ยังไม่มีน้องเลย เพิ่มตัวแรกกัน','hello')}
+   <ul class="pick-list" aria-label="รายชื่อสัตว์เลี้ยง">${st.pets.map(p=>prow(p,`data-go="#/pet/${p.id}"`)).join('')}
+    <li><button type="button" class="prow add tap" data-go="#/pet/new"><span class="prow-plus" aria-hidden="true">${I.plus}</span><span class="prow-b"><b>เพิ่มน้อง</b><span>เพิ่มสัตว์เลี้ยงตัวใหม่</span></span>${I.chev}</button></li></ul>`)}
+function petChooseSheet(kind){const K={vac:['บันทึกวัคซีนให้น้องตัวไหน','syringe'],visit:['บันทึกการหาหมอของน้องตัวไหน','healthbook']}[kind];
+  openSheet(`${sheetHead(K[0],'เลือกน้องก่อน แล้วค่อยกรอกรายละเอียด',K[1])}
+   <ul class="pick-list" aria-label="เลือกสัตว์เลี้ยง">${st.pets.map(p=>prow(p,`data-act="pickFor" data-for="${kind}" data-pet="${p.id}"`)).join('')}</ul>`)}
 function overdueScreen(){
   const items=overdueItems();const vac=items.filter(i=>i.kind==='due'),ap=items.filter(i=>i.kind==='appt');
   const vacCards=vac.map(it=>{const p=pet(it.petId);const booked=st.appts.filter(a=>a.petId===it.petId&&a.vacKey===it.key&&a.status!=='done'&&diff(a.date)>=0).sort(byDT)[0];
@@ -403,27 +414,38 @@ const photoURLs={}; /* ตัวอย่างเท่านั้น: อย�
 const HTABS=[['vac','วัคซีน'],['visit','หาหมอ'],['notes','โน๊ต & รูป']];
 function healthScreen(id){
   if(!st.pets.length)return `<div class="screen">${bar('สมุดสุขภาพ')}${emptyBox('ยังไม่มีใครให้ดูแล','เพิ่มน้องก่อน แล้วค่อยมาเปิดสมุดนะ',`<button type="button" class="btn" data-go="#/pet/new">${I.plus} เพิ่มสัตว์เลี้ยง</button>`)}</div>${nav('health')}`;
-  const p=pet(id)||pet(st.selPet)||st.pets[0];st.selPet=p.id;save();
-  const chips=`<div class="switcher" role="tablist" aria-label="เลือกสัตว์เลี้ยงที่จะดูสมุด">${st.pets.map(x=>{const on=x.id===p.id;return `<button type="button" role="tab" class="sw ${on?'on':''}" data-pchip="${x.id}" data-go="#/health/${x.id}" aria-selected="${on}" aria-controls="hpanel" tabindex="${on?0:-1}">${dot(x)}<span class="sw-name">${esc(x.name)}</span>${on?I.check:''}</button>`}).join('')}</div>`;
-  const tabs=`<div class="seg" role="tablist" aria-label="หมวดในสมุดสุขภาพ">${HTABS.map(([k,l])=>`<button type="button" role="tab" id="htab-${k}" data-htab="${k}" aria-controls="hpanel" aria-selected="${healthTab===k}" tabindex="${healthTab===k?0:-1}" class="${healthTab===k?'on':''}">${l}</button>`).join('')}</div>`;
+  const p=id?pet(id):null;const all=!p;if(p){st.selPet=p.id;save()}
+  if(all&&healthTab==='notes')healthTab='vac';
+  const tabsList=all?HTABS.filter(t=>t[0]!=='notes'):HTABS;
+  const pids=all?st.pets.map(x=>x.id):[p.id];const whose=all?'น้องทุกตัว':esc(p.name);
+  const bd=pid=>all?pbadge(pet(pid)):'';
+  const allChip=`<button type="button" role="tab" class="sw sw-all ${all?'on':''}" data-pchip="all" data-go="#/health" aria-selected="${all}" aria-controls="hpanel" tabindex="${all?0:-1}"><span class="sw-dots" aria-hidden="true">${st.pets.slice(0,3).map(x=>dot(x)).join('')}</span><span class="sw-name">ทั้งหมด</span>${all?I.check:''}</button>`;
+  const chips=`<div class="switcher" role="tablist" aria-label="เลือกสัตว์เลี้ยงที่จะดูสมุด">${allChip}${st.pets.map(x=>{const on=!all&&x.id===p.id;return `<button type="button" role="tab" class="sw ${on?'on':''}" data-pchip="${x.id}" data-go="#/health/${x.id}" aria-selected="${on}" aria-controls="hpanel" tabindex="${on?0:-1}">${dot(x)}<span class="sw-name">${esc(x.name)}</span>${on?I.check:''}</button>`}).join('')}</div>`;
+  const tabs=`<div class="seg" role="tablist" aria-label="หมวดในสมุดสุขภาพ">${tabsList.map(([k,l])=>`<button type="button" role="tab" id="htab-${k}" data-htab="${k}" aria-controls="hpanel" aria-selected="${healthTab===k}" tabindex="${healthTab===k?0:-1}" class="${healthTab===k?'on':''}">${l}</button>`).join('')}</div>`;
+  const petAttr=all?'':` data-pet="${p.id}"`;
   let panel;
-  if(healthTab==='vac'){const {groups,c}=vacSummary(p.id);
-    const plannedV=st.appts.filter(a=>a.petId===p.id&&a.type==='vaccine'&&a.status!=='done'&&diff(a.date)>=0).sort(byDT);
-    panel=`<div class="todo" role="group" aria-label="สถานะนัดวัคซีน"><div class="t mint"><b>${c.done+c.sched}</b><span>ฉีดแล้ว / มีนัด</span></div><div class="t cream"><b>${c.soon}</b><span>ใกล้ถึง 7 วัน</span></div><div class="t peach"><b>${c.over}</b><span>เลยกำหนด</span></div></div>
-      <div class="sec-head mt16"><h2>วัคซีนของ${esc(p.name)}</h2><button type="button" class="btn sm" data-act="addVac" data-pet="${p.id}">${I.plus} บันทึกเข็ม</button></div>
-      ${groups.length?`<div class="stack">${groups.map(g=>{const s=g.status;const lv=g.latest;return `<button type="button" class="card tap rec ${s==='over'?'over':''}" data-act="vacGroup" data-pet="${p.id}" data-key="${esc(g.key)}">
-        <span class="ic ic-${s}">${I.syringe}</span><span class="body"><span class="rec-top"><span class="rec-title">${esc(g.label)}</span>${statusChip(s)}</span>
+  if(healthTab==='vac'){
+    const byDue=(a,b)=>{if(a.next&&b.next)return a.next.localeCompare(b.next);if(a.next)return -1;if(b.next)return 1;return (b.latest.given||'').localeCompare(a.latest.given||'')};
+    const groups=all?pids.flatMap(x=>vacGroups(x)).sort(byDue):vacGroups(p.id);
+    const c={over:0,soon:0};groups.forEach(g=>{if(g.status in c)c[g.status]++});
+    const plannedV=st.appts.filter(a=>pids.includes(a.petId)&&a.type==='vaccine'&&a.status!=='done'&&diff(a.date)>=0).sort(byDT);
+    panel=`<div class="todo big" role="group" aria-label="สถานะวัคซีนของ${whose}">
+        <div class="t soon ${c.soon?'has':''}"><span class="t-top"><span class="t-ic">${I.clock}</span><b>${c.soon}</b></span><span class="t-lab">ใกล้ถึง 7 วัน</span><small>${c.soon?'เตรียมพาไปฉีดได้เลย':'ยังไม่มีเข็มที่ใกล้ถึง'}</small></div>
+        <div class="t over ${c.over?'has':''}"><span class="t-top"><span class="t-ic">${I.warn}</span><b>${c.over}</b></span><span class="t-lab">เลยกำหนด</span><small>${c.over?'รีบนัดฉีดนะ อย่าทำเนียน':'ไม่มี เก่งมาก'}</small></div></div>
+      <div class="sec-head mt16"><h2>วัคซีนของ${whose}</h2><button type="button" class="btn sm" data-act="addVac"${petAttr}>${I.plus} บันทึกเข็ม</button></div>
+      ${groups.length?`<div class="stack">${groups.map(g=>{const s=g.status;const lv=g.latest;return `<button type="button" class="card tap rec ${s==='over'?'over':''}" data-act="vacGroup" data-pet="${g.petId}" data-key="${esc(g.key)}">
+        <span class="ic ic-${s}">${I.syringe}</span><span class="body"><span class="rec-top">${bd(g.petId)}<span class="rec-title">${esc(g.label)}</span>${statusChip(s)}</span>
         <span class="dates"><span><i>ฉีดล่าสุด</i> ${lv.given?fmt(lv.given):'ยังไม่ลง'}</span><span><i>ครั้งถัดไป</i> ${lv.next?fmt(lv.next):'—'}</span></span>
         <span class="countdown">${lv.next?(s==='over'?I.warn+' '+rel(lv.next)+' แล้วนะ ทำเป็นลืม?':rel(lv.next))+' · ':''}ฉีดมาแล้ว ${g.recs.filter(r=>r.given).length} ครั้ง · ดูประวัติ</span></span></button>`}).join('')}</div>`
         :`<div class="card">${emptyBox('ไม่มีวัคซีนสักเข็ม?','จดไว้หน่อย ไม่งั้นนิ่มจะมองบนทุกวัน','',true)}</div>`}
-      <div class="sec-head mt16"><h2>นัดวัคซีนที่ลงไว้</h2><button type="button" class="btn sm white" data-act="addAppt" data-pet="${p.id}" data-type="vaccine">${I.plus} นัดฉีด</button></div>
+      <div class="sec-head mt16"><h2>นัดวัคซีนที่ลงไว้</h2><button type="button" class="btn sm white" data-act="addAppt"${petAttr} data-type="vaccine">${I.plus} นัดฉีด</button></div>
       ${plannedV.length?`<div class="stack">${plannedV.map(itemCard).join('')}</div>`:'<p class="empty-line">ยังไม่มีนัดฉีดที่ลงไว้ในหน้านัดหมาย</p>'}`;
-  }else if(healthTab==='visit'){const vis=st.visits.filter(v=>v.petId===p.id).sort((a,b)=>b.date.localeCompare(a.date));
-    const ck=st.appts.filter(a=>a.petId===p.id&&a.type==='checkup');const cu=ck.filter(a=>a.status!=='done'&&diff(a.date)>=0).length,co=ck.filter(a=>a.status!=='done'&&diff(a.date)<0).length,cd=ck.filter(a=>a.status==='done').length;
-    panel=`<div class="todo" role="group" aria-label="สถานะนัดหมอ"><div class="t sky"><b>${cu}</b><span>นัดหมอที่จะถึง</span></div><div class="t peach"><b>${co}</b><span>เลยนัดหมอ</span></div><div class="t mint"><b>${cd}</b><span>ไปตามนัดแล้ว</span></div></div>
-      <div class="sec-head mt16"><h2>ประวัติหาหมอของ${esc(p.name)}</h2><button type="button" class="btn sm" data-act="addVisit" data-pet="${p.id}">${I.plus} บันทึก</button></div>
+  }else if(healthTab==='visit'){const vis=st.visits.filter(v=>pids.includes(v.petId)).sort((a,b)=>b.date.localeCompare(a.date));
+    const ck=st.appts.filter(a=>pids.includes(a.petId)&&a.type==='checkup');const cu=ck.filter(a=>a.status!=='done'&&diff(a.date)>=0).length,co=ck.filter(a=>a.status!=='done'&&diff(a.date)<0).length,cd=ck.filter(a=>a.status==='done').length;
+    panel=`<div class="todo" role="group" aria-label="สถานะนัดหมอของ${whose}"><div class="t sky"><b>${cu}</b><span>นัดหมอที่จะถึง</span></div><div class="t peach"><b>${co}</b><span>เลยนัดหมอ</span></div><div class="t mint"><b>${cd}</b><span>ไปตามนัดแล้ว</span></div></div>
+      <div class="sec-head mt16"><h2>ประวัติหาหมอของ${whose}</h2><button type="button" class="btn sm" data-act="addVisit"${petAttr}>${I.plus} บันทึก</button></div>
       ${vis.length?`<div class="stack">${vis.map(v=>`<button type="button" class="card tap rec" data-act="editVisit" data-id="${v.id}"><span class="ic ic-visit">${I.steth}</span>
-        <span class="body"><span class="rec-title">${esc(v.reason)}</span><span class="sub">${fmt(v.date)}${v.clinic?' · '+esc(v.clinic):''}</span>${v.notes?`<span class="note">${esc(v.notes)}</span>`:''}</span></button>`).join('')}</div>`
+        <span class="body">${all?`<span class="rec-top">${bd(v.petId)}</span>`:''}<span class="rec-title">${esc(v.reason)}</span><span class="sub">${fmt(v.date)}${v.clinic?' · '+esc(v.clinic):''}</span>${v.notes?`<span class="note">${esc(v.notes)}</span>`:''}</span></button>`).join('')}</div>`
        :`<div class="card">${emptyBox('ยังไม่เคยไปหาหมอ','สุขภาพดี หรือแค่ยังไม่ได้จด? นิ่มสงสัย','',true)}</div>`}`;
   }else{const notes=st.notes.filter(n=>n.petId===p.id).sort((a,b)=>(b.updated||'').localeCompare(a.updated||''));
     const SLOTS=[['book','สมุด'],['sticker','สติกเกอร์วัคซีน'],['wound','แผล']];
@@ -435,13 +457,16 @@ function healthScreen(id){
        :`<div class="card">${emptyBox('ยังไม่มีโน๊ต','เรื่องเล็กๆ ของน้อง จดไว้ตรงนี้ได้เลย','',true)}</div>`}`;
   }
   return `<div class="screen">${bar('สมุดสุขภาพ')}${chips}
-   <div class="section" style="padding-top:10px">${tabs}</div>
+   <div class="section" style="padding-top:10px">${tabs}${all?'<p class="hint-s center">โน๊ตและรูปดูได้เมื่อเลือกน้องทีละตัว</p>':''}</div>
    <div class="section" id="hpanel" role="tabpanel" aria-labelledby="htab-${healthTab}" tabindex="0">${panel}</div>
   </div>${nav('health')}`;
 }
 
 /* ---- appointments ---- */
-const AP={mode:'all',sel:null,cursor:null,petF:'',typeF:'',from:'',showAll:false,showEnded:false};
+const AP={mode:'all',sel:null,cursor:null,pets:[],types:[],from:'',showAll:false,showEnded:false};
+/* ตัวกรองนัดหมาย: ว่าง = ทั้งหมด */
+function apFilter(){const pets=AP.pets.filter(id=>pet(id));const types=AP.types.filter(t=>ATYPE[t]);return {pets,types,n:(pets.length?1:0)+(types.length?1:0)}}
+const fDesc=F=>[F.pets.length?F.pets.map(id=>esc(pet(id).name)).join(', '):'',F.types.length?F.types.map(t=>ATYPE[t].label).join(', '):''].filter(Boolean).join(' · ');
 function itemCard(it){const d=parse(it.date);const p=pet(it.petId);const t=ATYPE[it.type]||ATYPE.other;const od=isOver(it),done=it.status==='done';
   const stc=done?`<span class="status done">${I.check}ไปแล้ว</span>`:od?`<span class="status over">${I.warn}เลยกำหนด ${-diff(it.date)} วัน</span>`:`<span class="chip ${in7(it.date)?'yellow':''}">${rel(it.date)}</span>`;
   const act=it.kind==='due'?`data-act="viewDue" data-pet="${it.petId}" data-key="${esc(it.key)}"`:`data-act="viewAppt" data-id="${it.id}"`;
@@ -456,70 +481,96 @@ function remCard(r){const p=pet(r.petId);const nx=remNext(r);const ended=remEnde
     <div class="rem-actions">${ended?'':`<button type="button" class="switch-btn" role="switch" aria-checked="${!r.paused}" data-act="toggleRem" data-id="${r.id}"><span class="switch" aria-hidden="true"></span><span>${r.paused?'หยุดชั่วคราว':'เปิดเตือนอยู่'}</span></button>`}
     <button type="button" class="btn sm white" data-act="editRem" data-id="${r.id}">${I.edit} แก้ไข</button><button type="button" class="icon-btn" data-act="delRem" data-id="${r.id}" aria-label="ลบเตือน ${esc(r.title)}">${I.trash}</button></div></div>`}
 function apptsScreen(){
-  const petF=AP.petF&&pet(AP.petF)?AP.petF:'';const typeF=ATYPE[AP.typeF]?AP.typeF:'';
+  const F=apFilter();const inF=it=>(!F.pets.length||F.pets.includes(it.petId))&&(!F.types.length||F.types.includes(it.type));
+  const onePet=F.pets.length===1?F.pets[0]:'';
   if(!AP.cursor){const t=today();AP.cursor=new Date(t.getFullYear(),t.getMonth(),1)}
   const y=AP.cursor.getFullYear(),m=AP.cursor.getMonth();const start=new Date(y,m,1-new Date(y,m,1).getDay());
-  const items=allItems().filter(it=>(!petF||it.petId===petF)&&(!typeF||it.type===typeF));
+  const items=allItems().filter(inF);
   const byDay={};items.forEach(a=>(byDay[a.date]=byDay[a.date]||[]).push(a));const T=todayIso();
   let cells='';for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d);const has=byDay[k];
     if(i===35&&d.getMonth()!==m)break;
-    const types=has?[...new Set(has.map(a=>a.type))]:[];
-    const lab=`${d.getDate()} ${ML[d.getMonth()]} ${d.getFullYear()+543}${k===T?' วันนี้':''}${has?` มี ${has.length} รายการ: ${types.map(x=>(ATYPE[x]||ATYPE.other).label).join(', ')}`:''}`;
+    const ps=has?st.pets.filter(p=>has.some(a=>a.petId===p.id)):[];
+    const lab=`${d.getDate()} ${ML[d.getMonth()]} ${d.getFullYear()+543}${k===T?' วันนี้':''}${has?` มี ${has.length} รายการ ของ${ps.map(p=>esc(p.name)).join(', ')}`:''}`;
     const sel=AP.mode==='day'&&AP.sel===k;
-    cells+=`<button type="button" class="day ${d.getMonth()!==m?'out':''} ${k===T?'today':''} ${has?'has':''} ${sel?'sel':''}" data-day="${k}" aria-pressed="${sel}" aria-label="${lab}">${d.getDate()}<span class="mks" aria-hidden="true">${types.slice(0,3).map(x=>`<i class="mk mk-${(ATYPE[x]||ATYPE.other).mk}"></i>`).join('')}</span></button>`}
-  const rems=st.reminders.filter(r=>(!petF||r.petId===petF)&&pet(r.petId));
+    cells+=`<button type="button" class="day ${d.getMonth()!==m?'out':''} ${k===T?'today':''} ${has?'has':''} ${sel?'sel':''}" data-day="${k}" aria-pressed="${sel}" aria-label="${lab}">${d.getDate()}<span class="cdots" aria-hidden="true">${ps.slice(0,3).map(p=>dot(p,'cdot')).join('')}${ps.length>3?'<span class="cmore">+</span>':''}</span></button>`}
   let body;
-  if(AP.mode==='day'&&AP.sel){const ds=(byDay[AP.sel]||[]).sort(byDT);const rd=rems.filter(r=>remOnDay(r,AP.sel));
-    body=`<div class="sec-head"><h2>${fmtLong(AP.sel)}</h2></div>`+(ds.length?`<div class="stack">${ds.map(itemCard).join('')}</div>`:`<div class="card">${emptyBox('ว่างจ้า ไม่มีนัด','ไม่มีนัดเลย จะเพิ่มก็ได้นะ ไม่บังคับ',`<button type="button" class="btn sm" data-act="addAppt" data-date="${AP.sel}" data-pet="${petF}">${I.plus} เพิ่มนัด</button>`,true)}</div>`)
-      +(rd.length?`<div class="sec-head mt16"><h2>เตือนประจำวันนั้น</h2><span class="sample-tag soft">เตือนในแอปเท่านั้น</span></div><div class="stack">${rd.map(r=>`<div class="card rem-mini">${I.repeat}<span><b>${esc(r.title)}</b> ${pbadge(pet(r.petId))} ${timeTxt(r.time)}</span></div>`).join('')}</div>`:'');
+  if(AP.mode==='day'&&AP.sel){const ds=(byDay[AP.sel]||[]).sort(byDT);
+    body=`<div class="sec-head"><h2>${fmtLong(AP.sel)}</h2></div>`+(ds.length?`<div class="stack">${ds.map(itemCard).join('')}</div>`:`<div class="card">${emptyBox('ว่างจ้า ไม่มีนัด','ไม่มีนัดเลย จะเพิ่มก็ได้นะ ไม่บังคับ',`<button type="button" class="btn sm" data-act="addAppt" data-date="${AP.sel}" data-pet="${onePet}">${I.plus} เพิ่มนัด</button>`,true)}</div>`);
   }else{const ov=items.filter(isOver).sort(byDT);const ups=items.filter(it=>it.status!=='done'&&diff(it.date)>=0).sort(byDT);
     const done=items.filter(it=>it.status==='done').sort((a,b)=>b.date.localeCompare(a.date));const shown=AP.showAll?ups:ups.slice(0,7);
     body=(ov.length?`<div class="sec-head"><h2>เลยกำหนด ยังไม่เช็ค <span class="meta">${ov.length}</span></h2><button type="button" class="link" data-go="#/overdue">จัดการทั้งหมด</button></div><div class="stack">${ov.map(itemCard).join('')}</div><div class="mt16"></div>`:'')
       +`<div class="sec-head"><h2>นัดที่กำลังจะถึง <span class="meta">${ups.length} รายการ</span></h2></div>`
-      +(ups.length?`<div class="stack">${shown.map(itemCard).join('')}</div>${ups.length>7?`<button type="button" class="btn white block mt16" data-act="toggleAll" aria-expanded="${AP.showAll}">${AP.showAll?'แสดงแค่ 7 รายการที่ใกล้ที่สุด':`แสดงทั้งหมด (${ups.length})`}</button>`:''}`:`<div class="card">${emptyBox('ไม่มีนัดเลยสักนัด','ชิลเกินไปแล้ว ลองเพิ่มนัดวัคซีนดูมั้ย','',true)}</div>`)
+      +(ups.length?`<div class="stack">${shown.map(itemCard).join('')}</div>${ups.length>7?`<button type="button" class="btn white block mt16" data-act="toggleAll" aria-expanded="${AP.showAll}">${AP.showAll?'แสดงแค่ 7 รายการที่ใกล้ที่สุด':`แสดงทั้งหมด (${ups.length})`}</button>`:''}`:`<div class="card">${emptyBox(F.n?'ไม่มีนัดตามตัวกรองนี้':'ไม่มีนัดเลยสักนัด',F.n?'ลองล้างตัวกรอง หรือเลือกน้องตัวอื่นดู':'ชิลเกินไปแล้ว ลองเพิ่มนัดวัคซีนดูมั้ย',F.n?`<button type="button" class="btn sm white" data-act="clearFilter">ล้างตัวกรอง</button>`:'',true)}</div>`)
       +(done.length?`<div class="sec-head mt16"><h2>ไปแล้ว</h2></div><div class="stack">${done.slice(0,5).map(itemCard).join('')}</div>`:'');}
-  const active=rems.filter(r=>!remEnded(r)),ended=rems.filter(remEnded);
-  const remSec=`<div class="section" id="remSec"><div class="sec-head"><h2>เตือนประจำ <span class="meta">${active.length}</span></h2>${st.pets.length?`<button type="button" class="btn sm" data-act="addRem" data-pet="${petF}">${I.plus} ตั้งเตือน</button>`:''}</div>
-    <p class="lead-box soft">${I.bell}<span><b>เตือนในแอปเท่านั้น</b> ไม่ส่ง LINE หรือแจ้งเตือนมือถือ ต้องเปิดแอปถึงจะเห็น</span></p>
-    ${active.length?`<div class="stack mt8">${active.map(remCard).join('')}</div>`:`<p class="empty-line">ยังไม่มีเตือนประจำ เช่น ป้อนยาทุกวัน ตั้งได้ที่ปุ่ม ตั้งเตือน</p>`}
-    ${ended.length?`<button type="button" class="link mt8" data-act="toggleEnded" aria-expanded="${AP.showEnded}">${AP.showEnded?'ซ่อนที่จบแล้ว':`ดูที่จบแล้ว (${ended.length})`}</button>${AP.showEnded?`<div class="stack mt8">${ended.map(remCard).join('')}</div>`:''}`:''}</div>`;
   const fp=AP.from&&pet(AP.from);
-  const filters=`<div class="filters" role="group" aria-label="กรองตามสัตว์เลี้ยง"><button type="button" class="fchip" data-fpet="" aria-pressed="${!petF}">ทุกตัว</button>${st.pets.map(p=>`<button type="button" class="fchip" data-fpet="${p.id}" aria-pressed="${petF===p.id}">${dot(p)}<span class="fc-name">${esc(p.name)}</span></button>`).join('')}</div>
-    <div class="filters" role="group" aria-label="กรองตามประเภทนัด"><button type="button" class="fchip" data-ftype="" aria-pressed="${!typeF}">ทุกประเภท</button>${Object.entries(ATYPE).map(([k,t])=>`<button type="button" class="fchip" data-ftype="${k}" aria-pressed="${typeF===k}"><span class="mk mk-${t.mk}" aria-hidden="true"></span>${t.label}</button>`).join('')}</div>`;
-  return `<div class="screen">${bar(fp&&petF===AP.from?'นัดหมายของ'+esc(fp.name):'ตารางนัดหมาย',fp?'#/pet/'+fp.id:null)}
+  const fLabel=F.n?`ตัวกรองนัดหมาย กำลังกรองอยู่: ${fDesc(F)}`:'ตัวกรองนัดหมาย ตอนนี้แสดงทั้งหมด';
+  const right=`<div class="bar-acts"><button type="button" class="icon-btn fbtn ${F.n?'on':''}" data-act="filterSheet" aria-haspopup="dialog" aria-label="${fLabel}">${I.funnel}${F.n?'<span class="fbadge" aria-hidden="true"></span>':''}</button>${st.pets.length?`<button type="button" class="btn sm bar-add" data-act="addAppt" data-date="${AP.mode==='day'&&AP.sel?AP.sel:''}" data-pet="${onePet}" aria-label="เพิ่มนัด">${I.plus}<span aria-hidden="true">นัด</span></button>`:''}</div>`;
+  const fsum=F.n?`<div class="fsum"><span class="fs-ic" aria-hidden="true">${I.funnel}</span><span class="fs-t"><b>กรองอยู่:</b> ${fDesc(F)}</span><button type="button" class="link" data-act="clearFilter">ล้างตัวกรอง</button></div>`:'';
+  const legendPets=F.pets.length?F.pets.map(pet):st.pets;
+  return `<div class="screen appts">${bar(fp&&onePet===AP.from?'นัดหมายของ'+esc(fp.name):'ตารางนัดหมาย',fp?'#/pet/'+fp.id:null,right)}
    ${fp?`<div class="ctx-bar">${pbadge(fp)}<span>มาจากโปรไฟล์${esc(fp.name)}</span><button type="button" class="link" data-go="#/pet/${fp.id}">กลับโปรไฟล์</button></div>`:''}
-   ${filters}
-   <div class="section" style="padding-top:8px"><div class="seg" role="group" aria-label="มุมมองรายการ"><button type="button" data-mode="day" aria-pressed="${AP.mode==='day'}" class="${AP.mode==='day'?'on':''}">รายวัน</button><button type="button" data-mode="all" aria-pressed="${AP.mode==='all'}" class="${AP.mode==='all'?'on':''}">ทั้งหมด</button></div></div>
+   ${fsum}
+   <div class="section" style="padding-top:12px"><div class="seg" role="group" aria-label="มุมมองรายการ"><button type="button" data-mode="day" aria-pressed="${AP.mode==='day'}" class="${AP.mode==='day'?'on':''}">รายวัน</button><button type="button" data-mode="all" aria-pressed="${AP.mode==='all'}" class="${AP.mode==='all'?'on':''}">ทั้งหมด</button></div></div>
    <div class="section"><div class="card cal"><div class="cal-head"><button type="button" class="icon-btn" data-cal="-1" aria-label="เดือนก่อน">${I.back}</button><b aria-live="polite">${ML[m]} ${y+543}</b><button type="button" class="icon-btn" data-cal="1" aria-label="เดือนถัดไป">${I.chev}</button></div>
     <div class="cal-grid">${WD.map(w=>`<div class="wd" aria-hidden="true">${w}</div>`).join('')}${cells}</div>
-    <div class="cal-foot"><div class="legend">${Object.values(ATYPE).map(t=>`<span><i class="mk mk-${t.mk}" aria-hidden="true"></i>${t.label}</span>`).join('')}</div><button type="button" class="btn sm white" data-act="goToday">กลับวันนี้</button></div></div></div>
-   <div class="section">${body}</div>${remSec}
-  </div>${st.pets.length?`<button type="button" class="fab" data-act="addAppt" data-date="${AP.mode==='day'&&AP.sel?AP.sel:''}" data-pet="${petF}">${I.plus} เพิ่มนัด</button>`:''}${nav('appts')}`;
+    <div class="cal-foot"><div class="legend" aria-hidden="true">${legendPets.map(p=>`<span>${dot(p,'cdot')}${esc(p.name)}</span>`).join('')}${st.pets.length>3?'<span><span class="cmore">+</span>มากกว่า 3 ตัว</span>':''}</div><p class="cal-note">จุดสี = นัดของน้องแต่ละตัว · ประเภทนัดดูได้ที่รายการด้านล่าง</p></div></div></div>
+   <div class="section">${body}</div>
+  </div>${nav('appts')}`;
+}
+function filterSheet(){const F=apFilter();
+  openSheet(`${sheetHead('กรองนัดหมาย','เลือกได้หลายอย่าง ไม่ติ๊กเลย = ดูทั้งหมด','appointment')}
+  <form id="filterForm" data-nodirty="1" novalidate>
+   <fieldset class="field"><legend class="flabel">น้องตัวไหน</legend><div class="ck-list pets">${st.pets.map(p=>`<label class="ck"><input type="checkbox" name="fpets" value="${p.id}" ${F.pets.includes(p.id)?'checked':''}>${dot(p)}<span>${esc(p.name)}</span></label>`).join('')}</div></fieldset>
+   <fieldset class="field"><legend class="flabel">ประเภทนัด</legend><div class="ck-list types">${Object.entries(ATYPE).map(([k,t])=>`<label class="ck"><input type="checkbox" name="ftypes" value="${k}" ${F.types.includes(k)?'checked':''}><span class="ck-ic" aria-hidden="true">${I[t.ic]}</span><span>${t.label}</span></label>`).join('')}</div></fieldset>
+   <div class="btn-row"><button type="button" class="btn white" data-act="resetFilter">ล้างตัวกรอง</button><button type="submit" class="btn">${I.check} ใช้ตัวกรอง</button></div>
+  </form>`)}
+function setFilter(pets,types,msg){AP.pets=pets;AP.types=types;AP.showAll=false;pendingFocus='[data-act="filterSheet"]';closeSheet();rerender();if(msg)toast(msg)}
+
+/* ---- daily reminders (own page) ---- */
+function remindersScreen(){
+  const rems=st.reminders.filter(r=>pet(r.petId));const active=rems.filter(r=>!remEnded(r)).sort((a,b)=>(a.time||'').localeCompare(b.time||'')),ended=rems.filter(remEnded);
+  const add=st.pets.length?`<button type="button" class="btn sm bar-add" data-act="addRem" aria-label="เพิ่มเตือน">${I.plus}<span aria-hidden="true">เตือน</span></button>`:'';
+  const emptyBtn=st.pets.length?`<button type="button" class="btn sm" data-act="addRem">${I.plus} ตั้งเตือนแรก</button>`:`<button type="button" class="btn sm" data-go="#/pet/new">${I.plus} เพิ่มน้องก่อน</button>`;
+  return `<div class="screen">${bar('เตือนประจำ','#/home',add)}
+   <div class="section"><p class="lead-box soft">${I.bell}<span><b>เตือนในแอปเท่านั้น</b> ไม่ส่ง LINE หรือแจ้งเตือนมือถือ ต้องเปิดแอปถึงจะเห็น รอบนี้ซ้ำได้แบบทุกวันอย่างเดียว</span></p></div>
+   <div class="section"><div class="sec-head"><h2>กำลังเตือน <span class="meta">${active.length} รายการ</span></h2></div>
+    ${active.length?`<div class="stack">${active.map(remCard).join('')}</div>`:`<div class="card">${emptyBox('ยังไม่มีเตือนประจำ','เช่น ป้อนยาทุกวัน แปรงฟันก่อนนอน ตั้งครั้งเดียว นิ่มทวงให้ทุกวัน',emptyBtn,true,'sleep')}</div>`}
+    ${ended.length?`<button type="button" class="link mt8" data-act="toggleEnded" aria-expanded="${AP.showEnded}">${AP.showEnded?'ซ่อนที่จบแล้ว':`ดูที่จบแล้ว (${ended.length})`}</button>${AP.showEnded?`<div class="stack mt8">${ended.map(remCard).join('')}</div>`:''}`:''}</div>
+  </div>${nav('home')}`;
 }
 
 /* ---- share (mock) ---- */
+const memberPets=mb=>mb.role==='owner'?st.pets:(mb.pets||[]).map(pet).filter(Boolean);
+const petCks=(name,checked)=>`<div class="ck-list pets">${st.pets.map(p=>`<label class="ck"><input type="checkbox" name="${name}" value="${p.id}" ${checked.includes(p.id)?'checked':''}>${dot(p)}<span>${esc(p.name)}</span></label>`).join('')}</div>`;
 function shareScreen(q){
   const fp=q.pet&&pet(q.pet);const f=st.family;const link=`https://teeratin.github.io/tofu-app/#/join/${f.code}`;
+  const allIds=st.pets.map(p=>p.id);
+  const mRow=mb=>{const ps=memberPets(mb);const own=mb.role==='owner';const txt=own?'เห็นทุกตัว (เจ้าของ)':!ps.length?'ยังไม่ได้แชร์ตัวไหน':ps.length===st.pets.length?'ดูได้ทุกตัว':'ดูได้: '+ps.map(p=>esc(p.name)).join(', ');
+    return `<div class="row member"><span class="mav" aria-hidden="true">${esc(mb.name.slice(0,1))}</span><span class="mb-b"><span class="mb-top"><span class="mb-name">${esc(mb.name)}${mb.self?' (คุณ)':''}</span><span class="role ${mb.role}">${own?'เจ้าของ':'ช่วยดูแล'}</span></span><span class="mb-pets"><span class="mb-dots" aria-hidden="true">${ps.map(p=>dot(p)).join('')}</span><span class="mb-ptxt">${txt}</span></span></span>
+       ${own?`<span class="lock" role="img" aria-label="เจ้าของลบไม่ได้">${I.lock}</span>`:`<button type="button" class="icon-btn" data-act="editMemberPets" data-id="${mb.id}" aria-haspopup="dialog" aria-label="แก้ไขน้องที่${esc(mb.name)}ดูได้">${I.edit}</button><button type="button" class="icon-btn" data-act="delMember" data-id="${mb.id}" aria-label="ลบ ${esc(mb.name)} ออกจากรายชื่อ">${I.trash}</button>`}</div>`};
   return `<div class="screen">${bar('แชร์ให้ครอบครัว',fp?'#/pet/'+fp.id:'#/home')}
-   <div class="section"><div class="share-hero">${nimImg('badge','',96)}<div><span class="sample-tag">ตัวอย่าง</span><h2>ชวนคนในบ้านมาช่วยดูแล${fp?esc(fp.name):'น้องๆ'}</h2><p>หน้านี้เป็นตัวอย่าง ลิงก์และรหัสยังใช้ไม่ได้จริง ไม่มีการส่งข้อมูลไปเครื่องอื่น</p></div></div></div>
+   <div class="section"><div class="share-hero">${nimImg('badge','',96)}<div><span class="sample-tag">ตัวอย่าง</span><h2>ชวนคนในบ้านมาช่วยดูแล${fp?esc(fp.name):'น้องๆ'}</h2><p>เลือกแชร์ทุกตัวหรือเฉพาะตัวก็ได้ เช่น จ้างพี่เลี้ยงมาดูแค่ตัวเดียว หน้านี้ยังเป็นตัวอย่าง ไม่มีการส่งข้อมูลไปเครื่องอื่น</p></div></div></div>
    <div class="section"><div class="card share-card">
      <label class="flabel" for="shareLink">ลิงก์เชิญ</label><div class="copy-row"><input class="input" id="shareLink" value="${esc(link)}" readonly><button type="button" class="btn sm" data-act="copy" data-copy="${esc(link)}" data-what="ลิงก์">${I.copy} คัดลอก</button></div>
      <span class="flabel mt16" id="codeLbl">รหัสเชิญ 6 หลัก</span><div class="copy-row"><span class="code" role="text" aria-labelledby="codeLbl">${f.code.slice(0,3)} ${f.code.slice(3)}</span><button type="button" class="btn sm" data-act="copy" data-copy="${f.code}" data-what="รหัส">${I.copy} คัดลอก</button></div>
      <button type="button" class="link mt8" data-act="newCode">ขอรหัสใหม่</button></div></div>
    <div class="section"><div class="sec-head"><h2>สมาชิกที่แชร์แล้ว <span class="meta">${f.members.length} คน</span></h2></div><div class="card rows members">
-     ${f.members.map(mb=>`<div class="row member"><span class="mav" aria-hidden="true">${esc(mb.name.slice(0,1))}</span><span class="v">${esc(mb.name)}${mb.self?' (คุณ)':''}</span>
-       <span class="role ${mb.role}">${mb.role==='owner'?'เจ้าของ':'ช่วยดูแล'}</span>
-       ${mb.role==='owner'?`<span class="lock" role="img" aria-label="เจ้าของลบไม่ได้">${I.lock}</span>`:`<button type="button" class="icon-btn" data-act="delMember" data-id="${mb.id}" aria-label="ลบ ${esc(mb.name)} ออกจากรายชื่อ">${I.trash}</button>`}</div>`).join('')}</div>
-     <form class="card mt16" id="memberForm" novalidate><h3 class="card-h">เพิ่มสมาชิกตัวอย่าง</h3>
-       <div class="field" data-f="mname"><label for="m-name">ชื่อ ${req}</label><input class="input" id="m-name" name="mname" maxlength="30" placeholder="เช่น พี่ชาย, ยาย" autocomplete="off" aria-required="true"></div>
+     ${f.members.map(mRow).join('')}</div>
+     <form class="card mt16" id="memberForm" novalidate><h3 class="card-h">เชิญสมาชิก (ตัวอย่าง)</h3>
+       <div class="field" data-f="mname"><label for="m-name">ชื่อ ${req}</label><input class="input" id="m-name" name="mname" maxlength="30" placeholder="เช่น พี่ชาย, ยาย, พี่เลี้ยง" autocomplete="off" aria-required="true"></div>
        <fieldset class="field"><legend class="flabel">บทบาท</legend><div class="swatches two-col"><label class="swopt"><input type="radio" name="role" value="carer" checked><span>ช่วยดูแล</span></label><label class="swopt"><input type="radio" name="role" value="owner"><span>เจ้าของ (ลบไม่ได้)</span></label></div></fieldset>
+       ${st.pets.length?`<fieldset class="field" data-f="mpets" id="mpetsField"><legend class="flabel">น้องที่จะแชร์ ${req} <span class="opt">(เลือกเฉพาะตัวได้)</span></legend>${petCks('mpets',allIds)}<p class="hint-s" id="mpetsHint">ติ๊กออกตัวที่ไม่อยากให้คนนี้เห็น แก้ทีหลังได้ที่รายชื่อสมาชิก</p></fieldset>`:''}
        <button type="submit" class="btn block">${I.plus} เพิ่มสมาชิก</button></form></div>
   </div>${nav('home')}`;
 }
+function memberPetsSheet(id){const mb=st.family.members.find(x=>x.id===id);if(!mb||mb.role==='owner')return;
+  openSheet(`${sheetHead('น้องที่'+esc(mb.name)+'ดูได้','ติ๊กเฉพาะตัวที่อยากแชร์ (ตัวอย่าง)','badge')}
+   <form id="memberPetsForm" data-id="${mb.id}" novalidate><fieldset class="field" data-f="mpets"><legend class="flabel">น้องที่แชร์ ${req}</legend>${petCks('mpets',memberPets(mb).map(p=>p.id))}</fieldset>
+    <button type="submit" class="btn block">${I.check} บันทึก</button></form>`)}
 function settingsScreen(){
   return `<div class="screen">${bar('ตั้งค่า')}
    <div class="section"><div class="card mascot-card">${nimImg('main','',96)}<div><b>น้องนิ่ม</b><span>${NIM_DESC}</span></div></div></div>
-   <div class="section"><div class="card rows"><div class="row"><span class="k">เวอร์ชัน</span><span class="v">ต้นแบบ 0.3 · ข้อมูลรุ่น ${SCHEMA} (เก็บในเครื่อง)</span></div>
+   <div class="section"><div class="card rows"><div class="row"><span class="k">เวอร์ชัน</span><span class="v">ต้นแบบ 0.4 · ข้อมูลรุ่น ${SCHEMA} (เก็บในเครื่อง)</span></div>
      <div class="row"><span class="k">เกณฑ์ใกล้ถึง</span><span class="v">ภายใน 7 วัน (วันนี้ถึงอีก 6 วัน)</span></div>
      <div class="row"><span class="k">การแจ้งเตือน</span><span class="v">เตือนในแอปเท่านั้น ไม่ส่ง LINE</span></div></div></div>
    <div class="section"><button type="button" class="btn white block" data-go="#/share">${I.share} แชร์ให้ครอบครัว (ตัวอย่าง)</button></div>
@@ -541,9 +592,10 @@ function route(){
   else if(seg[0]==='pet')html=petDetail(seg[1]);
   else if(seg[0]==='health'){if(fresh&&q.tab&&HTABS.some(t=>t[0]===q.tab))healthTab=q.tab;html=healthScreen(seg[1]);
     if(fresh)afterRender.push(()=>{const c=app.querySelector('.sw[aria-selected="true"]');centerChip(c)})}
-  else if(seg[0]==='appts'){if(fresh){AP.from=q.pet&&pet(q.pet)?q.pet:'';AP.petF=AP.from;AP.showAll=false;if(q.day){AP.mode='day';AP.sel=q.day;const d=parse(q.day);AP.cursor=new Date(d.getFullYear(),d.getMonth(),1)}
-      if(q.rem)afterRender.push(()=>{const r=$('#remSec');const sc=app.querySelector('.screen');if(r&&sc)sc.scrollTop=r.offsetTop-70})}
+  else if(seg[0]==='appts'&&q.rem)html=remindersScreen(); /* ลิงก์เก่า #/appts?rem=1 */
+  else if(seg[0]==='appts'){if(fresh){const from=q.pet&&pet(q.pet)?q.pet:'';if(from)AP.pets=[from];else if(AP.from)AP.pets=[];AP.from=from;AP.showAll=false;if(q.day){AP.mode='day';AP.sel=q.day;const d=parse(q.day);AP.cursor=new Date(d.getFullYear(),d.getMonth(),1)}}
     html=apptsScreen()}
+  else if(seg[0]==='reminders')html=remindersScreen();
   else if(seg[0]==='overdue')html=overdueScreen();
   else if(seg[0]==='share')html=shareScreen(q);
   else if(seg[0]==='settings')html=settingsScreen();
@@ -559,16 +611,19 @@ const rerender=()=>{const sc=app.querySelector('.screen');const t=sc?sc.scrollTo
 window.addEventListener('hashchange',route);
 
 /* ---------- sheets & dialogs ---------- */
-let lastFocus=null, sheetSnap='';
-const snap=()=>[...layer.querySelectorAll('form')].map(f=>JSON.stringify([...new FormData(f)].filter(([,v])=>typeof v==='string'))).join('|');
-function openSheet(html,opts){opts=opts||{};const wasOpen=layer.classList.contains('open');if(!wasOpen)lastFocus=document.activeElement;
+let lastFocus=null, lastFocusSel='', sheetSnap='';
+/* ถ้าปุ่มเดิมถูก render ใหม่ ให้หาปุ่มเดียวกันจาก data-act / data-id / data-go เพื่อคืนโฟกัส */
+const focusSel=el=>{if(!el||!el.dataset)return '';const d=el.dataset;if(d.act)return `[data-act="${d.act}"]`+(d.id?`[data-id="${d.id}"]`:'');if(d.go)return `[data-go="${d.go}"]`;return el.id?'#'+el.id:''};
+const snap=()=>[...layer.querySelectorAll('form:not([data-nodirty])')].map(f=>JSON.stringify([...new FormData(f)].filter(([,v])=>typeof v==='string'))).join('|');
+function openSheet(html,opts){opts=opts||{};const wasOpen=layer.classList.contains('open');if(!wasOpen){lastFocus=document.activeElement;lastFocusSel=focusSel(lastFocus)}
   layer.innerHTML=`<div class="scrim" data-act="reqClose"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"><div class="sheet-top"><div class="grab" aria-hidden="true"></div><button type="button" class="icon-btn sheet-x" data-act="reqClose" aria-label="ปิดหน้าต่างนี้">${I.x}</button></div><div class="sheet-body">${html}</div></div>`;
   sheetSnap=snap();
   const focus=()=>{const t=opts.focus&&layer.querySelector(opts.focus);(t||layer.querySelector('.sheet')).focus()};
   if(wasOpen)focus();else requestAnimationFrame(()=>requestAnimationFrame(()=>{layer.classList.add('open');focus()}));
 }
-function closeSheet(now){const back=lastFocus;layer.classList.remove('open');sheetSnap='';
-  const done=()=>{layer.innerHTML='';if(back&&document.contains(back)&&typeof back.focus==='function'){try{back.focus()}catch(e){}}};
+function closeSheet(now){const back=lastFocus,bsel=lastFocusSel;layer.classList.remove('open');sheetSnap='';
+  const done=()=>{layer.innerHTML='';if(layer.classList.contains('open'))return;let t=back&&document.contains(back)?back:null;if(!t&&bsel){try{t=app.querySelector(bsel)}catch(e){}}
+    if(t&&typeof t.focus==='function'&&!(document.activeElement&&document.activeElement!==document.body&&app.contains(document.activeElement)&&document.activeElement!==back)){try{t.focus()}catch(e){}}};
   if(now||!layer.innerHTML){done();return}setTimeout(()=>{if(!layer.classList.contains('open'))done()},reduceMotion()?0:300)}
 function reqClose(){if(layer.querySelector('form')&&snap()!==sheetSnap){confirmDialog({title:'ทิ้งที่กรอกไว้?',text:'ที่พิมพ์ไว้ยังไม่ได้บันทึก ถ้าปิดตอนนี้จะหายหมดนะ',ok:'ทิ้งเลย',cancel:'กลับไปกรอกต่อ',pose:'writing',onOk:()=>closeSheet()});return}closeSheet()}
 let dlgLast=null,dlgOk=null;
@@ -768,8 +823,14 @@ const H={
     if(!showErrs(f,e))return;const data={title:d.title,petId:d.petId,time:d.time,start:d.start,end:d.end||''};
     if(id){const r=st.reminders.find(x=>x.id===id);if(r)Object.assign(r,data)}else st.reminders.push(Object.assign({id:uid(),paused:false},data));
     save();closeSheet();rerender();toast('ตั้งเตือนประจำแล้ว เตือนในแอปเท่านั้น')},
-  memberForm(f){const d=fdata(f);if(!showErrs(f,d.mname?{}:{mname:'ใส่ชื่อสมาชิกด้วยนะ'}))return;
-    st.family.members.push({id:uid(),name:d.mname,role:d.role==='owner'?'owner':'carer'});save();rerender();toast('เพิ่ม'+d.mname+'แล้ว (ตัวอย่าง)');const m=$('#m-name');if(m)m.focus()}
+  memberForm(f){const d=fdata(f);const e={};const owner=d.role==='owner';const ps=fall(f,'mpets').filter(id=>pet(id));
+    if(!d.mname)e.mname='ใส่ชื่อสมาชิกด้วยนะ';if(!owner&&st.pets.length&&!ps.length)e.mpets='เลือกน้องที่จะแชร์อย่างน้อย 1 ตัว';if(!showErrs(f,e))return;
+    st.family.members.push({id:uid(),name:d.mname,role:owner?'owner':'carer',pets:owner?st.pets.map(p=>p.id):ps});save();rerender();
+    toast('เพิ่ม'+d.mname+'แล้ว · '+(owner||ps.length===st.pets.length?'ดูได้ทุกตัว':'แชร์ '+ps.length+' ตัว')+' (ตัวอย่าง)');const m=$('#m-name');if(m)m.focus()},
+  memberPetsForm(f){const ps=fall(f,'mpets').filter(id=>pet(id));if(!showErrs(f,ps.length?{}:{mpets:'เลือกอย่างน้อย 1 ตัว ถ้าไม่อยากแชร์เลย ให้เอาสมาชิกออกแทน'}))return;
+    const mb=st.family.members.find(x=>x.id===f.dataset.id);if(!mb)return;mb.pets=ps;save();closeSheet();rerender();toast('แก้น้องที่'+mb.name+'ดูได้แล้ว (ตัวอย่าง)')},
+  filterForm(f){const all=(n,list)=>{const v=fall(f,n);return v.length===list.length?[]:v};
+    const pets=all('fpets',st.pets),types=all('ftypes',Object.keys(ATYPE));setFilter(pets,types,pets.length||types.length?'กรองนัดหมายแล้ว':'แสดงนัดทั้งหมดแล้ว')}
 };
 document.addEventListener('submit',e=>{const f=e.target;if(!H[f.id])return;e.preventDefault();if(f.dataset.busy)return;f.dataset.busy='1';
   const b=f.querySelector('[type=submit]');if(b)b.disabled=true;
@@ -794,6 +855,7 @@ function onField(e){const t=e.target;
   if(t.id==='vac-type'){const s=t.form.querySelector('[data-f="name"]');if(s)s.hidden=t.value!=='other'}
   if(t.name==='vac'){const s=t.form.querySelector('[data-f="vacName"]');if(s)s.hidden=!fall(t.form,'vac').includes('other')}
   if(t.name==='pets')rebuildVacPick(t.form);
+  if(t.name==='role'&&t.form&&t.form.id==='memberForm'){const fs=t.form.querySelector('#mpetsField');if(fs){const own=t.value==='owner';fs.querySelectorAll('input').forEach(i=>{i.disabled=own;if(own)i.checked=true});const h=fs.querySelector('#mpetsHint');if(h)h.textContent=own?'เจ้าของเห็นน้องทุกตัวเสมอ':'ติ๊กออกตัวที่ไม่อยากให้คนนี้เห็น แก้ทีหลังได้ที่รายชื่อสมาชิก'}}
   if(t.dataset&&t.dataset.photo){const k=t.dataset.photo;const file=t.files&&t.files[0];if(!file)return;
     if(!/^image\//.test(file.type)){toast('ไฟล์นี้ไม่ใช่รูปภาพ เลือกใหม่นะ');t.value='';return}
     if(photoURLs[k])URL.revokeObjectURL(photoURLs[k]);photoURLs[k]=URL.createObjectURL(file);
@@ -817,8 +879,6 @@ document.addEventListener('click',e=>{
   const ch=e.target.closest('[data-choice] button');if(ch){onChoice(ch);return}
   const ht=e.target.closest('[data-htab]');if(ht){healthTab=ht.dataset.htab;pendingFocus='#htab-'+healthTab;rerender();return}
   const pc=e.target.closest('[data-pchip]');if(pc){pendingFocus=`[data-pchip="${pc.dataset.pchip}"]`;go(pc.dataset.go);return}
-  const fp=e.target.closest('[data-fpet]');if(fp){AP.petF=fp.dataset.fpet;AP.showAll=false;pendingFocus=`[data-fpet="${AP.petF}"]`;rerender();return}
-  const ft=e.target.closest('[data-ftype]');if(ft){AP.typeF=ft.dataset.ftype;AP.showAll=false;pendingFocus=`[data-ftype="${AP.typeF}"]`;rerender();return}
   const md=e.target.closest('[data-mode]');if(md){AP.mode=md.dataset.mode;if(AP.mode==='day'&&!AP.sel)AP.sel=todayIso();pendingFocus=`[data-mode="${AP.mode}"]`;rerender();return}
   const cl=e.target.closest('[data-cal]');if(cl){const c=AP.cursor;AP.cursor=new Date(c.getFullYear(),c.getMonth()+Number(cl.dataset.cal),1);pendingFocus=`[data-cal="${cl.dataset.cal}"]`;rerender();return}
   const dy=e.target.closest('[data-day]');if(dy){AP.mode='day';AP.sel=dy.dataset.day;pendingFocus=`[data-day="${AP.sel}"]`;rerender();return}
@@ -828,17 +888,19 @@ document.addEventListener('click',e=>{
     case 'enter':st.onboarded=true;save();go(st.pets.length?'#/home':'#/pet/new');break;
     case 'undo':{const fn=toastUndo;hideToast();if(fn)fn();break}
     case 'reqClose':reqClose();break;
-    case 'reset':st=seed();st.onboarded=true;healthTab='vac';Object.assign(AP,{mode:'all',sel:null,cursor:null,petF:'',typeF:'',from:'',showAll:false,showEnded:false});save();toast('รีเซ็ตเป็นข้อมูลตัวอย่างแล้ว');go('#/home');break;
+    case 'reset':st=seed();st.onboarded=true;healthTab='vac';Object.assign(AP,{mode:'all',sel:null,cursor:null,pets:[],types:[],from:'',showAll:false,showEnded:false});save();toast('รีเซ็ตเป็นข้อมูลตัวอย่างแล้ว');go('#/home');break;
     case 'delPet':{const p=pet(id);if(!p)break;confirmDelete('ลบ'+esc(p.name)+'?','ข้อมูลวัคซีน การหาหมอ นัดหมาย โน๊ต และเตือนประจำของ'+esc(p.name)+'จะหายทั้งหมด',()=>{
-      withUndo(()=>{rmById('pets',id);['vaccines','visits','appts','notes','reminders'].forEach(k=>{st[k]=st[k].filter(x=>x.petId!==id)});if(st.selPet===id)st.selPet=st.pets[0]?st.pets[0].id:null},'ลบ'+p.name+'แล้ว');go('#/home')},'ลบน้อง');break}
+      withUndo(()=>{rmById('pets',id);['vaccines','visits','appts','notes','reminders'].forEach(k=>{st[k]=st[k].filter(x=>x.petId!==id)});st.family.members.forEach(m=>{if(Array.isArray(m.pets))m.pets=m.pets.filter(x=>x!==id)});if(st.selPet===id)st.selPet=st.pets[0]?st.pets[0].id:null},'ลบ'+p.name+'แล้ว');go('#/home')},'ลบน้อง');break}
     case 'weight':weightSheet(pid);break;
     case 'delWeight':{const p=pet(pid);if(!p)break;withUndo(()=>{p.weights=p.weights.filter(w=>w.id!==id)},'ลบน้ำหนักแล้ว');weightSheet(pid);break}
-    case 'addVac':vacSheet(null,pid);break;
+    case 'petPicker':petPickerSheet();break;
+    case 'pickFor':if(b.dataset.for==='visit')visitSheet(null,pid);else vacSheet(null,pid);break;
+    case 'addVac':if(pid||st.pets.length===1)vacSheet(null,pid||st.pets[0].id);else petChooseSheet('vac');break;
     case 'editVac':{const v=st.vaccines.find(x=>x.id===id);if(v)vacSheet(v);break}
     case 'vacGroup':vacGroupSheet(pid,key);break;
     case 'recordShot':recordShot(pid,key);break;
     case 'delVac':confirmDelete('ลบบันทึกวัคซีนนี้?','ประวัติเข็มนี้จะหายจากสมุดสุขภาพ',()=>{closeSheet();withUndo(()=>rmById('vaccines',id),'ลบบันทึกวัคซีนแล้ว')});break;
-    case 'addVisit':visitSheet(null,pid);break;
+    case 'addVisit':if(pid||st.pets.length===1)visitSheet(null,pid||st.pets[0].id);else petChooseSheet('visit');break;
     case 'editVisit':{const v=st.visits.find(x=>x.id===id);if(v)visitSheet(v);break}
     case 'delVisit':confirmDelete('ลบบันทึกหาหมอนี้?','ผลตรวจและคำแนะนำหมอในรายการนี้จะหายไป',()=>{closeSheet();withUndo(()=>rmById('visits',id),'ลบบันทึกหาหมอแล้ว')});break;
     case 'addNote':noteSheet(null,pid);break;
@@ -855,7 +917,10 @@ document.addEventListener('click',e=>{
     case 'bookDue':{const gg=vacGroups(pid).find(x=>x.key===key);apptSheet(null,{pet:pid,type:'vaccine',vacKey:key,date:gg&&gg.next&&diff(gg.next)>0?gg.next:addDays(1)});break}
     case 'toggleAll':AP.showAll=!AP.showAll;pendingFocus='[data-act="toggleAll"]';rerender();break;
     case 'toggleEnded':AP.showEnded=!AP.showEnded;pendingFocus='[data-act="toggleEnded"]';rerender();break;
-    case 'goToday':{const t=today();AP.cursor=new Date(t.getFullYear(),t.getMonth(),1);AP.sel=todayIso();pendingFocus=`[data-day="${AP.sel}"]`;rerender();break}
+    case 'filterSheet':filterSheet();break;
+    case 'resetFilter':setFilter([],[],'ล้างตัวกรองแล้ว แสดงนัดทั้งหมด');break;
+    case 'clearFilter':AP.pets=[];AP.types=[];AP.showAll=false;pendingFocus='[data-act="filterSheet"]';rerender();toast('ล้างตัวกรองแล้ว แสดงนัดทั้งหมด');break;
+    case 'editMemberPets':memberPetsSheet(id);break;
     case 'addRem':remSheet(null,pid);break;
     case 'editRem':{const r=st.reminders.find(x=>x.id===id);if(r)remSheet(r);break}
     case 'toggleRem':{const r=st.reminders.find(x=>x.id===id);if(!r)break;r.paused=!r.paused;save();pendingFocus=`[data-act="toggleRem"][data-id="${id}"]`;rerender();toast(r.paused?'พักเตือน "'+r.title+'" แล้ว':'เปิดเตือน "'+r.title+'" แล้ว');break}
