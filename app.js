@@ -98,7 +98,7 @@ const VACS=[
 ];
 const VACMAP=Object.fromEntries(VACS.map(v=>[v.value,v]));
 const vacOpts=sp=>VACS.filter(v=>v.species==='all'||v.species===sp);
-const NIM={hello:'nim-hello.png',writing:'nim-writing.png',trash:'nim-trash.png',syringe:'nim-syringe.png',healthbook:'nim-healthbook.png',appointment:'nim-appointment.png',thumbsup:'nim-thumbsup.png',sleep:'nim-sleep.png',badge:'nim-badge.png'};
+const NIM={main:'nim-main.png',hello:'nim-hello.png',writing:'nim-writing.png',trash:'nim-trash.png',syringe:'nim-syringe.png',healthbook:'nim-healthbook.png',appointment:'nim-appointment.png',thumbsup:'nim-thumbsup.png',sleep:'nim-sleep.png',badge:'nim-badge.png'};
 const NIM_DESC='ก้อนเต้าหู้ไหมหน้าตาย ใส่หมวกพยาบาลลายอุ้งเท้า มีต้นหอมแปะหัว คอยจดทุกนัดแบบขี้เกียจแต่ชัวร์';
 
 /* ---------- state + migration ---------- */
@@ -240,7 +240,7 @@ function centerChip(el){if(!el)return;const box=el.parentElement;const left=el.o
 const go=h=>{if(location.hash===h)route();else location.hash=h};
 const NAVS=[['home','#/home','home','หน้าแรก'],['health','#/health','book','สุขภาพ'],['appts','#/appts','cal','นัดหมาย'],['settings','#/settings','gear','ตั้งค่า']];
 const nav=tab=>`<nav class="nav" aria-label="เมนูหลัก">${NAVS.map(([k,h,ic,l])=>`<button type="button" data-go="${h}" class="${tab===k?'on':''}" ${tab===k?'aria-current="page"':''}>${I[ic]}<span>${l}</span></button>`).join('')}</nav>`;
-const bar=(title,back,right)=>`<header class="bar">${back?`<button type="button" class="icon-btn" data-go="${back}" aria-label="ย้อนกลับ">${I.back}</button>`:`<span class="bar-mascot">${nimImg('hello','',44)}</span>`}<h1>${title}</h1>${right||''}</header>`;
+const bar=(title,back,right)=>`<header class="bar">${back?`<button type="button" class="icon-btn" data-go="${back}" aria-label="ย้อนกลับ">${I.back}</button>`:`<span class="bar-mascot">${nimImg('main','',44)}</span>`}<h1>${title}</h1>${right||''}</header>`;
 const req='<span class="req" aria-hidden="true">*</span>';
 const reqNote='<p class="req-note"><span aria-hidden="true">*</span> = ต้องกรอก ที่เหลือไม่บังคับ</p>';
 const dIn=(n,v,id,o)=>{o=o||{};return `<div class="dpick input"><span class="dshow ${v?'':'ph'}" aria-hidden="true">${v?fmt(v):'เลือกวันที่'}</span><input class="dnative" id="${id}" type="date" name="${n}" value="${esc(v)}"${o.min?` min="${o.min}"`:''}${o.max?` max="${o.max}"`:''}${o.req?' aria-required="true"':''}>${I.cal}</div>`};
@@ -262,7 +262,7 @@ function splash(){
   return `<div class="splash">
     <p class="tag">สมุดสุขภาพน้อง ที่คอยแซะไม่ให้คุณลืมนัด</p>
     <h1 class="logo">เต้าหู้</h1>
-    <div class="splash-mascot">${nimImg('hello','',260)}<span class="bubble">ลงชื่อก่อน เดี๋ยวจดให้</span></div>
+    <div class="splash-mascot">${nimImg('main','',260)}<span class="bubble">ลงชื่อก่อน เดี๋ยวจดให้</span></div>
     <div class="intro card"><b>รู้จักน้องนิ่ม</b><span>${NIM_DESC} จดประวัติน้อง สมุดสุขภาพ และนัดวัคซีนไว้ที่นี่ ที่เหลือให้นิ่มจดแทน</span></div>
     <div class="grow" style="min-height:18px"></div>
     <button type="button" class="btn ink block" data-act="enter">ตกลง เริ่มเลย ${I.chev}</button>
@@ -297,7 +297,7 @@ function homeScreen(){
       <span class="chips">${ov?`<span class="chip peach">${I.warn} เลยกำหนด ${ov}</span>`:''}${n?`<span class="chip ${in7(n.date)?'yellow':''}">${I.cal} ถัดไป ${fmt(n.date)}</span>`:(!ov?'<span class="chip">ยังไม่มีนัด</span>':'')}</span></span>
       <span class="chev">${I.chev}</span></button>`}).join('')}</div>`;
   return `<div class="screen home">
-    <header class="hero"><div class="hero-text"><span class="time-pill">${I.clock}${g.k}</span><p class="bubble">${g.hi}</p><h1 class="hero-title">${g.q}</h1><p class="hero-date">${fmtLong(todayIso())}</p></div>${nimImg('hello','hero-nim',136)}</header>
+    <header class="hero"><div class="hero-text"><span class="time-pill">${I.clock}${g.k}</span><p class="bubble">${g.hi}</p><h1 class="hero-title">${g.q}</h1><p class="hero-date">${fmtLong(todayIso())}</p></div>${nimImg('main','hero-nim',136)}</header>
     <section class="section">${summaryBoxes()}</section>
     <section class="section" aria-labelledby="menuH"><h2 id="menuH" class="sr-only">เมนูหลัก</h2><div class="menu-grid">${cards.map(([t,ic,b,s,h])=>`<button type="button" class="mcard ${t} tap" data-go="${h}"><span class="ic">${I[ic]}</span><b>${b}</b><span class="sub">${s}</span></button>`).join('')}</div></section>
     <section class="section"><div class="sec-head"><h2>สัตว์เลี้ยงของฉัน <span class="meta">${st.pets.length} ตัว</span></h2>${st.pets.length?`<button type="button" class="btn sm" data-go="#/pet/new">${I.plus} เพิ่มน้อง</button>`:''}</div>${list}</section>
@@ -518,7 +518,7 @@ function shareScreen(q){
 }
 function settingsScreen(){
   return `<div class="screen">${bar('ตั้งค่า')}
-   <div class="section"><div class="card mascot-card">${nimImg('hello','',96)}<div><b>น้องนิ่ม</b><span>${NIM_DESC}</span></div></div></div>
+   <div class="section"><div class="card mascot-card">${nimImg('main','',96)}<div><b>น้องนิ่ม</b><span>${NIM_DESC}</span></div></div></div>
    <div class="section"><div class="card rows"><div class="row"><span class="k">เวอร์ชัน</span><span class="v">ต้นแบบ 0.3 · ข้อมูลรุ่น ${SCHEMA} (เก็บในเครื่อง)</span></div>
      <div class="row"><span class="k">เกณฑ์ใกล้ถึง</span><span class="v">ภายใน 7 วัน (วันนี้ถึงอีก 6 วัน)</span></div>
      <div class="row"><span class="k">การแจ้งเตือน</span><span class="v">เตือนในแอปเท่านั้น ไม่ส่ง LINE</span></div></div></div>
